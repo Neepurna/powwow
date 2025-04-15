@@ -1,0 +1,178 @@
+.chatlist-container {
+  height: 100%;
+  padding: 0 0 60px; /* Remove top padding, header is absolute */
+  overflow-y: visible; /* Changed from auto since parent has scroll */
+  position: relative;
+  background-color: #121212;
+}
+
+.search-container {
+  padding: 10px 16px;
+  position: sticky;
+  top: 0; /* Changed from 60px */
+  background-color: #121212;
+  z-index: 10;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: #1e1e1e;
+  border-radius: 20px;
+  padding: 0 15px;
+  height: 40px;
+}
+
+.search-box svg {
+  margin-right: 8px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.search-box input {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 0.9rem;
+  flex: 1;
+  outline: none;
+}
+
+.search-box input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.chat-list {
+  padding: 0 16px;
+}
+
+.chat-item {
+  display: flex;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-item:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.chat-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.chat-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chat-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.chat-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-time {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.chat-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-message {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 85%;
+}
+
+.unread-badge {
+  background-color: #99ff33;
+  color: #121212;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+.new-chat-button {
+  position: fixed; /* Changed back to fixed for global positioning */
+  bottom: 45px; /* Increased from 30px to move button upwards */
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #99ff33, #66cc00);
+  box-shadow: 0 4px 12px rgba(153, 255, 51, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100; /* Increased z-index to ensure it's above other elements */
+}
+
+.new-chat-button svg {
+  color: #121212;
+}
+
+.new-chat-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(153, 255, 51, 0.4);
+}
+
+.new-chat-button:active {
+  transform: translateY(-1px);
+}
+
+@media (min-width: 480px) {
+  .new-chat-button {
+    /* Properly position within the phone container outline */
+    right: calc(50% - 176px); /* Center of screen minus half of app width (376px/2) plus button position (20px) */
+    bottom: 85px; /* Increased from 70px to maintain the same proportional adjustment */
+  }
+}
+
+@media (max-width: 768px) {
+  .chatlist-container {
+    padding-top: 0; /* Remove top padding */
+  }
+  
+  .search-container {
+    top: 0;
+  }
+}

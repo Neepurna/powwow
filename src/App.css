@@ -10,7 +10,8 @@
   width: 100%;
   height: 100%;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto; /* Change from hidden to auto for scrolling */
+  overflow-x: hidden;
 }
 
 /* Remove previous styles that don't fit our new design */
@@ -29,7 +30,7 @@
     border-radius: 40px;
     border: 12px solid #2a2a2a;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   }
   
@@ -45,5 +46,34 @@
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     z-index: 100;
+  }
+}
+
+/* Add scrollbar styling for better aesthetics */
+.app::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.app::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+}
+
+.main-content {
+  position: relative;
+  min-height: 100%;
+  padding: 60px 0 0; /* Add top padding to account for header */
+  overflow-y: visible; /* Allow content to determine scrolling behavior */
+}
+
+/* Ensure content is properly positioned within the mobile container */
+@media (min-width: 480px) {
+  .main-content {
+    max-width: 100%;
+    margin: 0 auto;
   }
 }

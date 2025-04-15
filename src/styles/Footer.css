@@ -1,0 +1,86 @@
+.app-footer {
+  position: absolute; /* Change from fixed to absolute */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: rgba(18, 18, 18, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.footer-tabs {
+  display: flex;
+  height: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.footer-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: none;
+  padding: 8px 0;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-tab.active {
+  color: #99ff33;
+}
+
+.footer-tab.active:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 30%;
+  right: 30%;
+  height: 3px;
+  background: linear-gradient(90deg, #99ff33, #66cc00);
+  border-radius: 3px 3px 0 0;
+}
+
+.footer-tab svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  transition: transform 0.2s ease;
+}
+
+.footer-tab:hover svg {
+  transform: translateY(-2px);
+}
+
+.footer-tab.active svg {
+  filter: drop-shadow(0 0 5px rgba(153, 255, 51, 0.5));
+}
+
+.tab-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 320px) {
+  .tab-label {
+    font-size: 0.65rem;
+  }
+}
+
+@media (min-width: 480px) {
+  .app-footer {
+    max-width: 400px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 24px); /* Account for container border */
+  }
+}

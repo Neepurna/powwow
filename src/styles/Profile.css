@@ -1,0 +1,252 @@
+.profile-container {
+  height: 100%;
+  padding: 0 0 60px; /* Remove top padding */
+  background-color: #121212;
+  overflow-y: visible; /* Changed to let parent container handle scrolling */
+}
+
+.profile-header {
+  position: relative;
+  height: 150px;
+}
+
+.profile-cover {
+  height: 100%;
+  background: linear-gradient(45deg, #336699, #66cc00);
+  position: relative;
+  overflow: hidden;
+}
+
+.cover-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(to top, rgba(18, 18, 18, 1), rgba(18, 18, 18, 0));
+}
+
+.profile-avatar-container {
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid #121212;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.edit-avatar-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #99ff33;
+  color: #121212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 2px solid #121212;
+}
+
+.profile-info {
+  padding: 60px 16px 20px; /* Reduced horizontal padding */
+  text-align: center;
+}
+
+.profile-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 5px;
+  background: linear-gradient(90deg, #99ff33, #66cc00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.profile-username {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 15px;
+  font-size: 0.9rem;
+}
+
+.edit-profile-button {
+  background-color: transparent;
+  color: #99ff33;
+  border: 1px solid #99ff33;
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.edit-profile-button:hover {
+  background-color: rgba(153, 255, 51, 0.1);
+}
+
+.profile-bio {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  width: 100%; /* Changed from max-width to be fully responsive */
+}
+
+.bio-editor {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: white;
+  padding: 10px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  height: 80px;
+  resize: none;
+  font-family: inherit;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 5px;
+}
+
+.profile-sections {
+  padding: 0 16px 20px; /* Reduced horizontal padding */
+}
+
+.profile-section {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  transition: 0.3s;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+input:checked + .toggle-slider {
+  background-color: #99ff33;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
+.logout-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: rgba(255, 0, 0, 0.1);
+  color: #ff5555;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  margin-top: 20px;
+  padding: 12px;
+  font-weight: 600;
+}
+
+.logout-button:hover {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+@media (min-width: 480px) {
+  .profile-bio {
+    max-width: 320px; /* Constrain width on larger screens */
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import '../styles/Welcome.css';
 
-const Welcome = () => {
+interface WelcomeProps {
+  onLogin?: () => void;
+}
+
+const Welcome = ({ onLogin }: WelcomeProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleSignIn = () => {
@@ -10,7 +14,12 @@ const Welcome = () => {
     // For now, just simulate loading state
     setTimeout(() => {
       setIsLoading(false);
-      alert('Google Sign-In would happen here');
+      // Trigger the login callback
+      if (onLogin) {
+        onLogin();
+      } else {
+        alert('Google Sign-In would happen here');
+      }
     }, 1500);
   };
 
@@ -28,7 +37,8 @@ const Welcome = () => {
         </div>
         
         <p className="welcome-text">
-        Link Up. Speak Out. Stay Lit!        </p>
+          Link Up. Speak Out. Stay Lit!
+        </p>
 
         <button 
           className="google-signin-btn"
