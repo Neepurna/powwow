@@ -1,8 +1,5 @@
 .app-header {
-  position: absolute; /* Change from fixed to absolute */
-  top: 0;
-  left: 0;
-  right: 0;
+  flex-shrink: 0; /* Prevent shrinking in flex layout */
   height: 60px;
   background-color: rgba(18, 18, 18, 0.8);
   backdrop-filter: blur(10px);
@@ -10,6 +7,13 @@
   z-index: 100;
   transition: all 0.3s ease;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ensure it takes full width */
+  box-sizing: border-box;
+  /* REMOVE fixed positioning */
+  /* position: fixed; */
+  /* top: 0; */
+  /* left: 0; */
+  /* right: 0; */
 }
 
 .app-header.scrolled {
@@ -20,31 +24,75 @@
 .header-content {
   display: flex;
   align-items: center;
-  justify-content: center; /* Center the title */
+  justify-content: space-between; /* Space out the three main elements */
   height: 100%;
   padding: 0 16px;
-  max-width: 400px;
   margin: 0 auto;
-  position: relative; /* Needed for absolute positioning of children */
+  position: relative;
+  max-width: 100%; /* Default - will be overridden in media queries */
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+  width: 34px; /* Explicit width */
+  height: 34px; /* Explicit height */
+  flex-shrink: 0; 
+}
+
+.back-button svg {
+  display: block; 
+}
+
+/* Title container takes up remaining space */
+.header-title-container {
+  flex: 1; /* Allow container to grow */
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  min-width: 0; /* Prevent flex item overflow */
+  /* Remove absolute positioning */
+  position: static; 
 }
 
 .header-title {
-  font-size: 1.4rem; /* Slightly smaller */
-  font-weight: 600; /* Adjust weight */
-  background: linear-gradient(90deg, #aaff55, #77dd00); /* Slightly brighter gradient */
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-  text-shadow: 0 0 8px rgba(153, 255, 51, 0.3); /* Subtle glow effect */
-  /* Remove margin if any */
+  /* Funky Font */
+  font-family: 'Bungee', cursive; 
+  /* Green Color */
+  color: #99ff33; 
+  /* Glow Effect */
+  text-shadow: 0 0 8px rgba(153, 255, 51, 0.7), 0 0 12px rgba(153, 255, 51, 0.5); 
+  
+  font-size: 1.3rem; /* Increased size slightly for the funky font */
+  font-weight: 400; /* Bungee is typically regular weight */
   margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 1px; /* Add some letter spacing */
 }
 
-/* Add styles for the header logo */
 .header-logo {
-  height: 28px; /* Adjust height as needed */
+  height: 28px; 
   width: auto;
+  display: block; 
+  /* Remove pointer-events override */
+}
+
+/* Placeholder to balance the back button */
+.button-placeholder {
+  width: 34px; /* Match back button width */
+  height: 34px; /* Match back button height */
+  flex-shrink: 0;
+  visibility: hidden; /* Keep space but hide content */
+  /* Remove position static if added */
 }
 
 .header-actions {
@@ -55,47 +103,20 @@
   gap: 8px;
 }
 
-.back-button {
-  position: absolute; /* Position absolutely */
-  left: 16px; /* Align to the left */
-  background: transparent;
-  color: #ffffff;
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  padding: 0;
-}
-
-.back-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(0);
-}
-
-.back-button:active {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
+/* Updated media queries for better responsive behavior */
 @media (min-width: 480px) {
-  .app-header {
-    max-width: 400px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 24px); /* Account for container border */
+  /* REMOVE styles related to fixed positioning within the outline */
+  /* .app-header { ... } */
+  
+  .header-content {
+    max-width: 376px; /* Account for potential padding */
+    padding: 0 20px; /* Slightly more padding on desktop view */
   }
 }
 
-@media (max-width: 768px) {
-  .app-header {
-    height: 56px;
-  }
-  
-  .header-title {
-    font-size: 1.3rem;
+/* Specific handling for desktop/expanded view */
+@media (max-width: 479px) {
+  .header-content {
+    max-width: 100%; /* Take full width on mobile */
   }
 }

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap'); /* <<< Import Bungee font */
+
 :root {
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -75,4 +77,22 @@ button:focus-visible {
     color: rgba(255, 255, 255, 0.87);
     background-color: #121212;
   }
+}
+
+/* Common Screen Title Styles */
+.screen-title {
+  font-family: 'Bungee', cursive;
+  color: #99ff33;
+  text-shadow: 0 0 6px rgba(153, 255, 51, 0.6), 0 0 10px rgba(153, 255, 51, 0.4);
+  font-size: 1.3rem;
+  font-weight: 400;
+  text-align: center;
+  padding: 15px 16px 10px; /* Adjust padding */
+  margin: 0;
+  letter-spacing: 1px;
+  flex-shrink: 0; /* Prevent shrinking if in a flex container */
+  background-color: #121212; /* Match background */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  box-sizing: border-box;
 }

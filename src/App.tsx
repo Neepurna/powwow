@@ -4,110 +4,106 @@ import Chatlist from './screens/Chatlist';
 import Search from './screens/Search';
 import Profile from './screens/Profile';
 import KYC from './screens/KYC';
-import ChatSystem from './screens/ChatSystem'; 
-import Header from './components/Header';
+import ChatSystem from './screens/ChatSystem';
+// REMOVE Header import
+// import Header from './components/Header';
 import Footer, { TabType } from './components/Footer';
-import { User } from 'firebase/auth'; 
-// Import createChat for use in Chatlist click handler via App
-import { getCurrentUser, isUserProfileComplete, observeAuthState, createChat, getPendingChats, updatePendingChats } from './services/firebase'; 
+import { User } from 'firebase/auth';
+// Import necessary functions from firebase service
+import {
+  getCurrentUser,
+  isUserProfileComplete,
+  observeAuthState,
+  createChat,
+  getPendingChats,
+  updatePendingChats,
+  ParticipantDetails // Import ParticipantDetails if exported from firebase.ts
+} from './services/firebase';
 import './App.css';
 
-// Define ParticipantDetails interface (can be moved to a types file later)
-interface ParticipantDetails {
-  uid: string;
-  displayName: string;
-  photoURL: string;
-}
+// Define ParticipantDetails interface if not imported
+// interface ParticipantDetails {
+//   uid: string; // User UID or Group Chat ID
+//   displayName: string; // User name or Group name
+//   photoURL?: string; // Optional: User photo or Group photo
+//   isGroup?: boolean; // Flag for groups
+// }
 
 function App() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [needsKYC, setNeedsKYC] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('chats');
-  const [currentUser, setCurrentUser] = useState<User | null>(getCurrentUser());
-  const [activeChatId, setActiveChatId] = useState<string | null>(null); 
-  const [activeChatPartner, setActiveChatPartner] = useState<ParticipantDetails | null>(null); 
-  // State to hold users selected from search
-  const [usersToAdd, setUsersToAdd] = useState<ParticipantDetails[]>([]); 
+  // State for the active chat
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  // Store details of the chat partner OR the group
+  const [activeChatPartner, setActiveChatPartner] = useState<ParticipantDetails | null>(null);
+  // State for users selected from search but not yet chatted with
+  const [usersToAdd, setUsersToAdd] = useState<ParticipantDetails[]>([]);
 
-  // Check user auth state and KYC status on load
+  // Authentication state observer
   useEffect(() => {
-    setIsLoading(true);
-    
-    // This will listen for auth state changes
     const unsubscribe = observeAuthState(async (user) => {
+      setIsLoading(true); // Start loading on auth state change
       if (user) {
-        console.log("User signed in:", user.uid);
-        setCurrentUser(user); // Set user immediately
-        setIsLoggedIn(true); // Set logged in status
-
+        setCurrentUser(user);
+        setIsLoggedIn(true);
         try {
-          // Fetch profile completion status and pending chats concurrently
-          const [profileComplete, pendingChats] = await Promise.all([
-            isUserProfileComplete(user.uid),
-            getPendingChats(user.uid) // Fetch pending chats
-          ]);
-          
-          console.log("Profile complete:", profileComplete);
-          console.log("Fetched pending chats:", pendingChats.length);
-
-          setNeedsKYC(!profileComplete);
-          setUsersToAdd(pendingChats); // Initialize usersToAdd state
-
+          const profileComplete = await isUserProfileComplete(user.uid);
+          if (!profileComplete) {
+            setNeedsKYC(true);
+          } else {
+            setNeedsKYC(false);
+            // Fetch pending chats only if KYC is complete
+            const pending = await getPendingChats(user.uid);
+            setUsersToAdd(pending);
+            if (pending.length > 0) {
+              // Optionally clear pending chats from DB after loading
+              // await updatePendingChats(user.uid, []);
+            }
+          }
         } catch (error) {
-          console.error("Error fetching initial user data:", error);
-          // Handle potential errors, maybe default states
-          setNeedsKYC(true); // Assume KYC needed if check fails
-          setUsersToAdd([]); // Default to empty pending list
-        } finally {
-           setIsLoading(false); // Set loading false after all checks/fetches
+          console.error("Error checking profile completion:", error);
+          // Handle error appropriately, maybe show an error message
+          setNeedsKYC(false); // Assume profile is complete or let user proceed
         }
       } else {
-        console.log("No user signed in");
-        // Clear all user-specific state on logout
-        setIsLoggedIn(false);
         setCurrentUser(null);
+        setIsLoggedIn(false);
         setNeedsKYC(false);
-        setUsersToAdd([]); // Clear pending users
-        setActiveChatId(null);
+        setActiveChatId(null); // Clear active chat on logout
         setActiveChatPartner(null);
+        setUsersToAdd([]); // Clear pending users on logout
         setActiveTab('chats'); // Reset to default tab
-        setIsLoading(false); // Set loading false
       }
-      
-      // Removed setIsLoading(false) from here, moved to finally block above
+      setIsLoading(false); // End loading after checks
     });
-    
-    // Cleanup the subscription on unmount
+
     return () => unsubscribe();
   }, []);
 
-  // Handle manual login (only used for testing/demo purposes)
-  const handleLogin = (user: User | null) => { // Allow null user
-    if (!user) {
-      // This case might not be needed if observeAuthState handles null correctly
-      setIsLoggedIn(false);
-      setCurrentUser(null);
-      setNeedsKYC(false);
-      setActiveChatId(null); // Clear active chat on logout
-      setActiveChatPartner(null);
-      return;
+  // --- Persist usersToAdd to Firestore when it changes ---
+  useEffect(() => {
+    // Only update Firestore if the user is logged in and loading is complete
+    // Avoid writing empty array on initial load before pending chats are fetched
+    if (currentUser && !isLoading && usersToAdd) { 
+      updatePendingChats(currentUser.uid, usersToAdd)
+        .catch(error => console.error("Failed to persist usersToAdd:", error));
     }
-    
-    setIsLoggedIn(true);
-    setCurrentUser(user);
-    
-    // Check KYC status
-    isUserProfileComplete(user.uid).then(complete => {
-      setNeedsKYC(!complete);
-      if (!complete) {
-        setActiveTab('chats'); // Default to chats, KYC screen will overlay
-        setActiveChatId(null); // Ensure no chat is active during KYC
-        setActiveChatPartner(null);
-      }
-    });
+  // Depend on a stable representation of usersToAdd if possible, or stringify
+  }, [usersToAdd, currentUser, isLoading]); 
+
+  // --- Handlers ---
+
+  // Handle successful login from Welcome/SignIn
+  const handleLogin = (user: User) => {
+    // The observer should handle setting the user state, 
+    // but we might manually trigger loading/KYC check here if needed
+    // For now, the observer handles it.
+    console.log("App: User logged in", user.uid);
   };
-  
+
   // Handle KYC completion
   const handleKYCComplete = () => {
     setNeedsKYC(false);
@@ -121,170 +117,132 @@ function App() {
     setActiveChatPartner(null);
   };
 
-  // Handler for selecting a user from search results
-  const handleUserSelected = async (user: ParticipantDetails) => {
+  // Handler for when a user is selected in Search
+  const handleUserSelected = (user: ParticipantDetails) => {
     if (!currentUser) return;
 
-    // Update local state first for immediate UI feedback
-    let updatedUsers: ParticipantDetails[] = [];
+    // Check if user is already in the list or has an existing chat (logic in Chatlist)
+    // Add user to the 'usersToAdd' list if not already present
     setUsersToAdd(prevUsers => {
-      // Avoid adding duplicates
       if (prevUsers.some(u => u.uid === user.uid)) {
-        updatedUsers = prevUsers; // No change
-        return prevUsers;
+        return prevUsers; // Already in the list
       }
-      updatedUsers = [...prevUsers, user]; // Store the new array
-      return updatedUsers;
+      // Add the selected user
+      return [...prevUsers, user];
     });
 
-    // Update Firestore if the list actually changed
-    if (updatedUsers.length > usersToAdd.length) { // Check if a user was actually added
-       try {
-         await updatePendingChats(currentUser.uid, updatedUsers);
-         console.log("Pending chats updated in Firestore after adding user.");
-       } catch (error) {
-         console.error("Failed to update pending chats in Firestore:", error);
-         // Optionally revert local state or show an error message
-       }
-    }
-
-    // Navigate after state updates
-    setActiveTab('chats'); 
-    setActiveChatId(null); 
-    setActiveChatPartner(null);
+    // Switch back to the chats tab to show the pending user
+    setActiveTab('chats');
   };
 
-  // Function to remove a user from the 'usersToAdd' list (e.g., after chat is created)
+  // Function to remove a user from the 'usersToAdd' list (e.g., after chat is created or deleted from pending)
   const removeUserToAdd = async (userId: string) => {
      if (!currentUser) return;
 
-     // Update local state
+     // Update local state immediately for responsiveness
      let updatedUsers: ParticipantDetails[] = [];
      setUsersToAdd(prevUsers => {
         updatedUsers = prevUsers.filter(u => u.uid !== userId);
+        // The useEffect for usersToAdd will handle the Firestore update
         return updatedUsers;
      });
-
-     // Update Firestore
-     try {
-       await updatePendingChats(currentUser.uid, updatedUsers);
-       console.log("Pending chats updated in Firestore after removing user.");
-     } catch (error) {
-       console.error("Failed to update pending chats in Firestore:", error);
-       // Optionally revert local state or show an error message
-     }
+     console.log(`User ${userId} removed locally from usersToAdd.`);
+     // Firestore update is handled by the useEffect hook watching usersToAdd
   };
 
-  // Handler for selecting an existing chat or initiating a new one from Chatlist
-  const handleNavigateToChat = async (partnerDetails: ParticipantDetails, existingChatId?: string) => {
+  // --- UPDATED: Handler for selecting an existing chat or initiating a new one from Chatlist ---
+  const handleNavigateToChat = async (chatDetails: ParticipantDetails, chatId?: string) => {
     if (!currentUser) return;
 
-    let chatIdToUse = existingChatId;
-    let userWasPending = usersToAdd.some(u => u.uid === partnerDetails.uid); // Check if the user was in the pending list
+    let chatIdToUse = chatId;
+    let userWasPending = false;
 
-    // If no existingChatId is provided, it means we need to create/find the chat
-    if (!chatIdToUse) {
+    // If it's NOT a group and no chatId was provided, it's a pending user click
+    if (!chatDetails.isGroup && !chatIdToUse) {
+      userWasPending = usersToAdd.some(u => u.uid === chatDetails.uid);
       try {
-        console.log(`Attempting to create/find chat for user: ${partnerDetails.displayName}`);
-        // Attempt to create the chat (will return existing ID if found)
-        const newChatId = await createChat(currentUser.uid, partnerDetails.uid);
+        console.log(`Attempting to create/find chat for user: ${chatDetails.displayName} (UID: ${chatDetails.uid})`); 
+        const newChatId = await createChat(currentUser.uid, chatDetails.uid);
         if (newChatId) {
           chatIdToUse = newChatId;
           // If the user was pending, remove them from the list now that chat exists
           if (userWasPending) {
-             await removeUserToAdd(partnerDetails.uid); // Call the async version
+             // Call removeUserToAdd which handles both local state and Firestore update via useEffect
+             removeUserToAdd(chatDetails.uid); 
+             console.log(`Removed pending user ${chatDetails.uid} after chat creation.`);
           }
         } else {
           console.error("Failed to create or find chat ID.");
-          // Handle error appropriately (e.g., show a message to the user)
           return; // Stop navigation if chat creation fails
         }
       } catch (error) {
         console.error("Error during chat creation/navigation:", error);
-        // Handle error (e.g., show a message)
         return; // Stop navigation on error
       }
+    } else if (chatDetails.isGroup && !chatIdToUse) {
+       // This case shouldn't happen if Chatlist passes the ID for existing groups
+       console.error("Error: Trying to navigate to a group without a chat ID.");
+       return;
     }
-    
-    // Proceed with navigation if we have a chatId
-    if (chatIdToUse) {
-      console.log("Navigating to chat:", chatIdToUse, "with", partnerDetails.displayName);
-      setActiveChatId(chatIdToUse);
-      setActiveChatPartner(partnerDetails);
-      // Optionally set activeTab to 'chats' if needed, though header/footer hide anyway
-    }
-  };
 
-  // Handler for going back from chat
-  const handleBackFromChat = () => {
-    setActiveChatId(null);
-    setActiveChatPartner(null);
-    setActiveTab('chats'); // Explicitly return to chats tab
+    // Proceed with navigation if we have a chatIdToUse
+    if (chatIdToUse) {
+      console.log(`[App.tsx] Navigating to chat. ID: ${chatIdToUse}, Details:`, JSON.stringify(chatDetails));
+      setActiveChatId(chatIdToUse);
+      setActiveChatPartner(chatDetails); // Store user OR group details
+      // Optionally set activeTab to 'chats' if needed, though header/footer hide anyway
+      // setActiveTab('chats'); 
+    } else {
+       console.error("[App.tsx] Navigation failed: No valid chatId could be determined.");
+    }
   };
 
   // Render different content based on the active tab or active chat
   const renderContent = () => {
     // KYC takes precedence
     if (needsKYC && currentUser) {
+      // KYC might need its own container styling if it shouldn't scroll
       return <KYC user={currentUser} onComplete={handleKYCComplete} />;
     }
 
     // Active chat takes precedence over tabs
     if (activeChatId && currentUser && activeChatPartner) {
-      return <ChatSystem 
-               chatId={activeChatId} 
-               currentUser={currentUser} 
+      // ChatSystem should fill the .app-content area
+      // Pass a function directly for onBack
+      return <ChatSystem
+               chatId={activeChatId}
+               currentUser={currentUser}
                otherParticipant={activeChatPartner}
-               onBack={handleBackFromChat} 
+               onBack={() => {
+                 setActiveChatId(null);
+                 setActiveChatPartner(null);
+                 setActiveTab('chats'); // Go back to chats list
+               }}
              />;
     }
-    
-    // Render tab content if no active chat
-    switch (activeTab) {
-      case 'chats':
-        return <Chatlist 
-                  currentUser={currentUser} 
-                  onNavigateToSearch={() => handleTabChange('search')} 
-                  onChatSelect={handleNavigateToChat} // Pass updated handler
-                  addedUsers={usersToAdd} // Pass users to add
-                  onRemoveUserToAdd={removeUserToAdd} // Pass remove function
-               />; 
-      case 'search':
-        return <Search 
-                  currentUser={currentUser} 
-                  onUserSelected={handleUserSelected} // Pass user selection handler
-               />;
-      case 'profile':
-        return <Profile />; 
-      default:
-        return <Chatlist 
-                  currentUser={currentUser} 
-                  onNavigateToSearch={() => handleTabChange('search')} 
-                  onChatSelect={handleNavigateToChat} // Pass updated handler
-                  addedUsers={usersToAdd} // Pass users to add
-                  onRemoveUserToAdd={removeUserToAdd} // Pass remove function
-               />; 
-    }
-  };
 
-  // Modify getHeaderTitle based on active chat
-  const getHeaderTitle = (): string | null | undefined => {
-    if (needsKYC) {
-      return 'Complete Profile';
-    }
-    if (activeChatId && activeChatPartner) {
-      return activeChatPartner.displayName; // Show partner's name in header
-    }
-    
+    // Render tabs
     switch (activeTab) {
       case 'chats':
-        return null; // Show logo
+        return currentUser ? <Chatlist
+                                currentUser={currentUser}
+                                onNavigateToSearch={() => setActiveTab('search')}
+                                onChatSelect={handleNavigateToChat}
+                                addedUsers={usersToAdd}
+                                onRemoveUserToAdd={removeUserToAdd}
+                              /> : null;
       case 'search':
-        return 'Discover';
+        // REMOVE the wrapper div
+        return currentUser ? <Search
+                              currentUser={currentUser}
+                              onUserSelected={handleUserSelected}
+                            /> : null;
       case 'profile':
-        return 'Profile';
+        return currentUser ? <Profile
+                                user={currentUser}
+                              /> : null;
       default:
-        return null; // Default to logo
+        return null;
     }
   };
 
@@ -292,41 +250,26 @@ function App() {
     return (
       <div className="loading-screen">
         <div className="loading-spinner"></div>
-        <p>Loading...</p>
+        <p>Loading Powwow...</p>
       </div>
     );
   }
 
-  const headerTitle = getHeaderTitle();
-  // Show logo only on chats tab AND when no chat is active
-  const showLogoInHeader = activeTab === 'chats' && !activeChatId && !needsKYC; 
-  // Show back button only when a chat is active
-  const showBackButtonInHeader = !!activeChatId && !needsKYC;
+  if (!isLoggedIn) {
+    return <Welcome onLogin={handleLogin} />;
+  }
 
   return (
+    // Change className back to "app"
     <div className="app">
-      {!isLoggedIn ? (
-        <Welcome onLogin={() => { /* observeAuthState handles login logic now */ }} />
-      ) : (
-        <>
-          {/* Conditionally render Header based on KYC and active chat */}
-          {!needsKYC && (
-            <Header 
-              title={headerTitle ?? undefined} 
-              showLogo={showLogoInHeader} 
-              showBackButton={showBackButtonInHeader}
-              onBackClick={handleBackFromChat} // Pass back handler
-            />
-          )}
-          {/* Adjust main content padding based on whether header/footer are visible */}
-          <div className={(needsKYC || activeChatId) ? "main-content no-header" : "main-content"}>
-            {renderContent()}
-          </div>
-          {/* Conditionally render Footer based on KYC and active chat */}
-          {!needsKYC && !activeChatId && (
-            <Footer activeTab={activeTab} onTabChange={handleTabChange} />
-          )}
-        </>
+      {/* Content Area */}
+      <div className="app-content">
+        {renderContent()}
+      </div>
+
+      {/* Conditionally render Footer */}
+      {isLoggedIn && !needsKYC && !activeChatId && (
+        <Footer activeTab={activeTab} onTabChange={handleTabChange} />
       )}
     </div>
   );

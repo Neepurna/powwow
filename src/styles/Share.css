@@ -1,0 +1,118 @@
+.share-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100; /* Ensure it's above footer/header */
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease;
+}
+
+.share-modal {
+  background-color: #1e1e1e;
+  padding: 25px 30px;
+  border-radius: 16px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+  width: 90%;
+  max-width: 350px;
+  text-align: center;
+  animation: slideInUp 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.share-modal h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #99ff33;
+  font-family: 'Bungee', cursive;
+  font-weight: 400;
+  font-size: 1.2rem;
+  text-shadow: 0 0 6px rgba(153, 255, 51, 0.5);
+}
+
+.share-link-display {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  word-break: break-all;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.share-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.share-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.native-share {
+  background: linear-gradient(135deg, #99ff33, #66cc00);
+  color: #121212;
+}
+.native-share:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(153, 255, 51, 0.3);
+}
+
+.copy-link {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+.copy-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+.copy-link.copied {
+  background-color: #4caf50; /* Green background when copied */
+  color: white;
+}
+
+.share-close-button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 8px;
+  margin-top: 10px;
+}
+.share-close-button:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

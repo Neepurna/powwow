@@ -286,6 +286,9 @@ const KYC = ({ user, onComplete }: KYCProps) => {
   return (
     <div className="kyc-container">
       <div className="kyc-content">
+        {/* Add Screen Title */}
+        <h2 className="screen-title kyc-title">Complete Profile</h2>
+
         <div className="kyc-image-container">
           <img src="/src/assets/kyc.png" alt="Complete Your Profile" className="kyc-image" />
         </div>

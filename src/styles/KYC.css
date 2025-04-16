@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(160deg, #1a1a1a 0%, #121212 100%); /* Subtle gradient background */
-  overflow: hidden; /* Prevent scrolling */
+  overflow-y: auto; /* Allow scrolling if content overflows */
   padding: 20px; /* Add padding for smaller screens */
   box-sizing: border-box;
 }
@@ -13,7 +13,7 @@
   width: 100%;
   max-width: 380px; /* Slightly narrower */
   margin: 0 auto;
-  padding: 30px 25px; /* Adjusted padding */
+  padding: 0; /* Remove padding, title handles top */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,13 +23,25 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden; /* Hide overflow for rounded corners */
+}
+
+/* Specific style for KYC title if needed, or rely on .screen-title */
+.kyc-title {
+  /* Example: Remove bottom border if not desired here */
+  /* border-bottom: none; */
+  /* Example: Add more bottom padding */
+   padding-bottom: 15px;
 }
 
 .kyc-image-container {
   width: 120px; /* Increased size */
   height: 120px;
-  margin-bottom: 25px; /* Adjusted margin */
+  /* Adjust margin if logo is kept */
+  /* margin-top: 25px; */
+  /* margin-bottom: 25px; */
   filter: drop-shadow(0 5px 15px rgba(153, 255, 51, 0.2)); /* Add glow to image */
+  display: none; /* Hide logo for now */
 }
 
 .kyc-image {
@@ -38,13 +50,13 @@
   object-fit: contain;
 }
 
-/* Removed .kyc-title styles */
-
 .kyc-form {
   display: flex;
   flex-direction: column;
   gap: 18px; /* Adjusted gap */
   width: 100%;
+  padding: 20px 25px 30px; /* Add padding back to form area */
+  box-sizing: border-box;
 }
 
 /* New row layout */

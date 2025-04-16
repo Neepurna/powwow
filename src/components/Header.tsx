@@ -1,20 +1,19 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Header.css';
 import logoImage from '../assets/logo.png';
 
 interface HeaderProps {
-  title?: string;
-  showBackButton?: boolean; // Prop exists
-  onBackClick?: () => void; // Prop exists
-  showLogo?: boolean; 
+  title?: string | null;
+  showBackButton?: boolean;
+  onBack?: () => void;
+  showLogo?: boolean;
 }
 
-const Header = ({ title, showBackButton = false, onBackClick, showLogo = false }: HeaderProps) => {
+const Header: React.FC<HeaderProps> = ({ title, showBackButton = false, onBack, showLogo = false }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Get the app container element instead of using window
       const appElement = document.querySelector('.app');
       if (appElement && appElement.scrollTop > 10) {
         setIsScrolled(true);
@@ -23,7 +22,6 @@ const Header = ({ title, showBackButton = false, onBackClick, showLogo = false }
       }
     };
 
-    // Attach scroll event to the app container instead of window
     const appElement = document.querySelector('.app');
     if (appElement) {
       appElement.addEventListener('scroll', handleScroll);
@@ -36,25 +34,28 @@ const Header = ({ title, showBackButton = false, onBackClick, showLogo = false }
   return (
     <header className={`app-header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="header-content">
-        {/* Render back button if showBackButton is true */}
-        {showBackButton && (
-          <button className="back-button" onClick={onBackClick} aria-label="Go back">
+        {/* Render Back Button OR a placeholder if not shown */}
+        {showBackButton ? (
+          <button onClick={onBack} className="back-button" aria-label="Go back">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
               <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
             </svg>
           </button>
-        )}
-        
-        {/* Conditionally render logo or title */}
-        {showLogo ? (
-          <img src={logoImage} alt="PowWow Logo" className="header-logo" />
         ) : (
-          // Use title prop, fallback to default only if title is undefined/null/empty
-          <h1 className="header-title">{title || 'PowWow!'}</h1> 
+          <div className="button-placeholder"></div> /* Placeholder on the left */
         )}
 
-        {/* Placeholder for potential future actions on the right */}
-        {/* <div className="header-actions"></div> */}
+        {/* Title/Logo Container */}
+        <div className="header-title-container">
+          {title ? (
+            <h1 className="header-title">{title}</h1>
+          ) : (
+            <img src={logoImage} alt="PowWow Logo" className="header-logo" />
+          )}
+        </div>
+
+        {/* Always render a placeholder on the right for balance */}
+        <div className="button-placeholder"></div> 
       </div>
     </header>
   );

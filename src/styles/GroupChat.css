@@ -1,0 +1,385 @@
+.group-chat-content h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
+  color: #e0e0e0;
+  font-weight: 600;
+}
+
+.group-chat-error {
+  background-color: rgba(255, 85, 85, 0.15);
+  color: #ff6b6b;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.group-chat-content .form-group {
+  margin-bottom: 15px;
+}
+
+.group-chat-content .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.group-chat-content .form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.user-selection {
+  flex-grow: 1; /* Allow list to take available space */
+  overflow-y: auto; /* Enable scrolling for user list */
+  margin-bottom: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 0;
+}
+
+.user-selection h3 {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 10px;
+  padding: 0 5px;
+}
+
+.user-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 250px; /* Limit height */
+}
+
+.user-list-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 5px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.user-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.user-list-item input[type="checkbox"] {
+  margin-right: 12px;
+  cursor: pointer;
+  /* Optional: Style checkbox */
+  accent-color: #99ff33;
+  width: 16px;
+  height: 16px;
+}
+
+.user-list-item label {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  cursor: pointer;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+}
+
+.user-avatar-small {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.group-chat-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.group-chat-actions button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.group-chat-actions .cancel-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.group-chat-actions .cancel-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.group-chat-actions .create-button {
+  background: linear-gradient(135deg, #99ff33, #66cc00);
+  color: #121212;
+  border: none;
+}
+.group-chat-actions .create-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(153, 255, 51, 0.3);
+}
+.group-chat-actions .create-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #555;
+}
+
+/* General Modal Styles (assuming some base modal styles exist) */
+.modal-overlay {
+  position: fixed;
+  inset: 0; /* Equivalent to top/left/right/bottom: 0 */
+  background-color: rgba(0, 0, 0, 0.75); /* Slightly darker overlay */
+  display: flex; /* Use flexbox */
+  align-items: center; /* Vertically center */
+  justify-content: center; /* Horizontally center */
+  z-index: 1000; /* Ensure it's above other content */
+  padding: 20px; /* Add padding for smaller screens */
+  box-sizing: border-box;
+}
+
+.modal-content {
+  background-color: #1e1e1e; /* Dark background */
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+  max-width: 450px; /* Max width of the modal */
+  width: 100%; /* Allow shrinking on small screens, constrained by max-width */
+  max-height: calc(100vh - 40px); /* Max height based on viewport minus padding */
+  display: flex;
+  flex-direction: column;
+  color: #e0e0e0; /* Light text */
+  overflow: hidden; /* Prevent content overflow from breaking layout */
+  box-sizing: border-box; /* <<< Add this line */
+}
+
+.group-chat-modal h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.modal-error {
+  color: #ff5555;
+  background-color: rgba(255, 85, 85, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+  text-align: center;
+  flex-shrink: 0; /* Prevent error message from shrinking */
+}
+
+/* Avatar Upload Section */
+.group-avatar-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-shrink: 0; /* Prevent avatar section from shrinking */
+}
+
+.group-avatar-button {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease;
+}
+
+.group-avatar-button:hover {
+  border-color: #99ff33; /* Accent color on hover */
+}
+
+.group-avatar-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.group-avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  border-radius: 50%;
+}
+
+.group-avatar-button:hover .group-avatar-overlay {
+  opacity: 1;
+}
+
+.group-avatar-overlay span {
+  font-size: 24px;
+  color: white;
+}
+
+/* Form Group (for name input) */
+.form-group {
+  margin-bottom: 15px;
+  flex-shrink: 0; /* Prevent form group from shrinking */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.form-group input[type="text"]:focus {
+  border-color: #99ff33;
+}
+
+/* User Selection List */
+.user-selection-list {
+  flex-grow: 1; /* Allow list to take available space */
+  overflow-y: auto; /* Enable scrolling for the list */
+  margin-bottom: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 5px; /* Add horizontal padding */
+  /* Removed max-height, rely on flex-grow and modal max-height */
+}
+
+.user-selection-list h3 {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 10px 5px;
+  font-weight: 500;
+}
+
+.user-selection-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 5px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.user-selection-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.user-selection-item input[type="checkbox"] {
+  margin-right: 12px;
+  cursor: pointer;
+  /* Optional: Style checkbox */
+  accent-color: #99ff33;
+}
+
+.user-selection-item label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  flex-grow: 1;
+}
+
+.user-avatar-small {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.user-name {
+  font-size: 0.9rem;
+}
+
+.no-users-message {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  padding: 15px 0;
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: auto; /* Push actions to the bottom */
+  padding-top: 15px; /* Add space above buttons */
+  flex-shrink: 0; /* Prevent actions from shrinking */
+}
+
+/* Assuming base button styles exist, add specifics */
+.button-secondary {
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #e0e0e0;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.button-secondary:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+.button-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button-primary {
+  padding: 8px 16px;
+  background-color: #99ff33; /* Accent color */
+  color: #121212; /* Dark text */
+  border: none;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.button-primary:hover:not(:disabled) {
+  background-color: #88ee22; /* Slightly lighter accent */
+}
+.button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #556633; /* Darker disabled accent */
+}

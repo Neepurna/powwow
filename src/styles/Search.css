@@ -1,16 +1,22 @@
 .search-screen {
-  height: 100%;
-  padding: 0 0 60px; /* Remove top padding */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Take full height of parent (.app-content) */
+  overflow: hidden; /* Prevent this container from scrolling */
   background-color: #121212;
-  overflow-y: visible; /* Let parent handle scrolling */
+  box-sizing: border-box; /* Include padding in height calculation */
 }
 
-.search-header {
-  padding: 10px 16px;
-  position: sticky;
-  top: 0; /* Changed from 60px */
-  background-color: #121212;
-  z-index: 10;
+/* Styles for the new search form container */
+.search-form-container {
+  padding: 10px 16px; /* Add padding around the search box */
+  background-color: #121212; /* Match background */
+  flex-shrink: 0; /* Prevent shrinking */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Optional separator */
+}
+
+.search-form-container form {
+  margin: 0;
 }
 
 .global-search-box {
@@ -19,7 +25,7 @@
   background-color: #1e1e1e;
   border-radius: 20px;
   padding: 0 15px;
-  height: 48px;
+  height: 40px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -50,26 +56,42 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: 5px; /* Add some space */
+}
+.clear-search:hover {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .search-content {
-  padding: 20px 16px;
-  min-height: calc(100% - 68px); /* Adjusted to account for search header */
+  flex: 1; /* Take remaining vertical space */
+  overflow-y: auto; /* Allow this area to scroll */
+  padding: 16px; /* This now controls top padding as well */
 }
 
 .search-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 60vh; /* Reduced from 70vh */
+  justify-content: flex-start; /* Align items to the top */
+  height: 100%; /* Rely on flex centering within search-content */
   color: rgba(255, 255, 255, 0.6);
   text-align: center;
+  padding-top: 5vh; /* Add padding from the top edge (adjust 20vh as needed) */
 }
 
 .search-illustration {
   margin-bottom: 20px;
-  opacity: 0.6;
+  /* Opacity is now applied to the image directly */
+  /* opacity: 0.6; */ 
+}
+
+/* <<< Add styles for the image >>> */
+.search-illustration img {
+  display: block; /* Remove extra space below image */
+  max-width: 225px; /* Increased size by 50% (150px * 1.5) */
+  height: auto;
+  margin: 0 auto; /* Center the image */
+  opacity: 0.4; /* Make it faded */
 }
 
 .placeholder-text {
@@ -82,7 +104,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 60vh; /* Reduced from 70vh */
+  /* Adjust height based on whether padding-top is active or not, or use flexbox centering */
+  height: 100%; /* Rely on flex centering within search-content */
   color: rgba(255, 255, 255, 0.7);
 }
 
@@ -121,6 +144,8 @@
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   transition: all 0.2s ease;
+  /* Ensure button is clickable */
+  position: relative; 
 }
 
 .user-result-item:hover {
@@ -171,6 +196,8 @@
   padding: 0;
   flex-shrink: 0;
   margin-left: 10px;
+  cursor: pointer;
+  z-index: 1; /* Ensure button is above other elements if overlapping */
 }
 
 .add-user-btn:hover {

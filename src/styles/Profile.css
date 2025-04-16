@@ -1,9 +1,16 @@
 .profile-container {
-  height: calc(100% - 60px); /* Set fixed height accounting for footer */
+  height: 100%; /* Use full height */
   background-color: #121212;
-  overflow-y: hidden; /* Prevent scrolling */
+  overflow: hidden; /* Container doesn't scroll */
   display: flex;
   flex-direction: column;
+}
+
+/* NEW: Scrollable content area below the title */
+.profile-scroll-content {
+  flex: 1; /* Takes remaining space */
+  overflow-y: auto; /* Allows this part to scroll */
+  padding-bottom: 20px; /* Space at the bottom */
 }
 
 .profile-header {
@@ -108,9 +115,9 @@
 }
 
 .edit-avatar-button svg {
-   /* Adjust icon size if needed */
-   width: 20px;
-   height: 20px;
+   /* Adjust icon size if needed - Increased by ~30% from 20px */
+   width: 26px;
+   height: 26px;
 }
 
 .edit-avatar-button:hover {
@@ -126,9 +133,9 @@
 }
 
 .profile-info {
-  padding: 60px 16px 20px;
+  padding: 45px 16px 20px; /* Reduced top padding from 60px to 30px */
   text-align: center;
-  flex: 1;
+  /* REMOVE flex: 1; */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -212,7 +219,6 @@
 
 .profile-sections {
   padding: 0 16px 20px;
-  margin-top: auto; /* Push to bottom */
 }
 
 .profile-section {
@@ -291,20 +297,72 @@ input:checked + .toggle-slider:before {
 }
 
 .logout-button {
-  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: rgba(255, 0, 0, 0.1);
-  color: #ff5555;
-  border: 1px solid rgba(255, 0, 0, 0.3);
-  padding: 12px;
-  font-weight: 600;
+  justify-content: center; /* Center content */
+  background-color: rgba(255, 85, 85, 0.1); /* Reddish background */
+  color: #ff5555; /* Red text */
+  border: none;
+  border-radius: 20px; /* Rounded corners */
+  padding: 8px 16px; /* Reduced horizontal padding */
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease; /* Add box-shadow transition */
+  width: auto; /* Change width to fit content */
+  margin: 0 auto 20px auto; /* Center horizontally and ensure bottom margin */
 }
 
-.logout-button:hover {
-  background-color: rgba(255, 0, 0, 0.2);
+.logout-button svg {
+  margin-right: 8px;
+}
+
+.logout-button:hover:not(:disabled) {
+  background-color: rgba(255, 85, 85, 0.2);
+  /* Add glow effect on hover */
+  box-shadow: 0 0 10px rgba(255, 85, 85, 0.5), 0 0 5px rgba(255, 85, 85, 0.3);
+}
+
+.logout-button:active:not(:disabled) {
+  transform: scale(0.98); /* Slight shrink on click */
+}
+
+.logout-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Styles for the new Invite Friends button */
+.invite-friends-button {
+  display: block; /* Make it block to take full width */
+  width: calc(100% - 32px); /* Full width minus padding */
+  background: linear-gradient(135deg, #99ff33, #66cc00); /* Use accent gradient */
+  color: #121212; /* Dark text */
+  border: none;
+  border-radius: 20px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin: 0 auto 15px auto; /* Center and add bottom margin */
+  text-align: center;
+}
+
+.invite-friends-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(153, 255, 51, 0.3);
+}
+
+.invite-friends-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(153, 255, 51, 0.2);
+}
+
+.invite-friends-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #555; /* Grey out when disabled */
 }
 
 @media (min-width: 480px) {

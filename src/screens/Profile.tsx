@@ -4,6 +4,7 @@ import { signOut, db, getCurrentUser, updateUserPhotoURL } from '../services/fir
 import { doc, getDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import { uploadImage } from '../services/cloudinary';
+import Share from '../components/Share'; // Import the Share component
 import '../styles/Profile.css';
 
 // Define a type for the profile data
@@ -25,6 +26,7 @@ const Profile = () => {
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false); // For image upload status
   const [previewImage, setPreviewImage] = useState<string | null>(null); // For image preview
+  const [showShareModal, setShowShareModal] = useState(false); // State for share modal
   const currentUser = getCurrentUser();
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for hidden file input
 
@@ -146,6 +148,10 @@ const Profile = () => {
     }
   };
 
+  const handleInviteClick = () => {
+    setShowShareModal(true); // Open the share modal
+  };
+
   if (isLoading) {
     return <div className="profile-loading">Loading profile...</div>;
   }
@@ -160,6 +166,9 @@ const Profile = () => {
 
   return (
     <div className="profile-container">
+      {/* Add Screen Title */}
+      <h2 className="screen-title">Profile</h2>
+
       {/* Hidden file input */}
       <input
         type="file"
@@ -170,69 +179,75 @@ const Profile = () => {
         disabled={isUploading}
       />
 
-      <div className="profile-header">
-        {/* ... existing cover photo ... */}
-        <div className="profile-avatar-container">
-          <div className={`profile-avatar ${isUploading ? 'uploading' : ''}`}>
-            {/* Use previewImage for immediate feedback, fallback to userProfile.photoURL */}
-            <img src={previewImage || userProfile.photoURL} alt={userProfile.displayName} />
-            {/* Loading overlay */}
-            {isUploading && (
-              <div className="avatar-upload-overlay">
-                <div className="loading-spinner-small"></div>
-              </div>
-            )}
+      <div className="profile-scroll-content"> {/* Add a scrollable wrapper */}
+        <div className="profile-header">
+          {/* ... existing cover photo ... */}
+          <div className="profile-avatar-container">
+            <div className={`profile-avatar ${isUploading ? 'uploading' : ''}`}>
+              {/* Use previewImage for immediate feedback, fallback to userProfile.photoURL */}
+              <img src={previewImage || userProfile.photoURL} alt={userProfile.displayName} />
+              {/* Loading overlay */}
+              {isUploading && (
+                <div className="avatar-upload-overlay">
+                  <div className="loading-spinner-small"></div>
+                </div>
+              )}
+            </div>
+            {/* Edit button now triggers file input */}
+            <button
+              className="edit-avatar-button"
+              onClick={handleEditAvatarClick}
+              disabled={isUploading} // Disable while uploading
+              aria-label="Change profile picture"
+            >
+              {/* Changed icon to Plus (+) */}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+              </svg>
+            </button>
           </div>
-          {/* Edit button now triggers file input */}
-          <button
-            className="edit-avatar-button"
-            onClick={handleEditAvatarClick}
-            disabled={isUploading} // Disable while uploading
-            aria-label="Change profile picture"
+        </div>
+
+        <div className="profile-info">
+          <div className="profile-name-section">
+            <h1 className="profile-name">{userProfile.displayName}</h1>
+            <p className="profile-username">@{userProfile.username}</p>
+          </div>
+          
+          {/* REMOVED "Edit Profile" button */}
+          
+          {/* Display general error messages here */}
+          {error && <p className="profile-error-inline">{error}</p>}
+        </div>
+
+        <div className="profile-sections">
+          {/* Move Invite Friends Button Above Logout */}
+          <button 
+            className="invite-friends-button" 
+            onClick={handleInviteClick} // Updated onClick handler
+            disabled={isUploading} // Optionally disable during uploads
           >
-            {/* Changed icon to Plus (+) */}
+            Invite friends for some Powwow Fun!
+          </button>
+
+          <button className="logout-button" onClick={handleLogout} disabled={isUploading}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+              <path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
             </svg>
+            Logout
           </button>
         </div>
       </div>
 
-      <div className="profile-info">
-        <div className="profile-name-section">
-          <h1 className="profile-name">{userProfile.displayName}</h1>
-          <p className="profile-username">@{userProfile.username}</p>
-        </div>
-        
-        {/* REMOVED "Edit Profile" button */}
-        
-        {/* Display general error messages here */}
-        {error && <p className="profile-error-inline">{error}</p>}
-
-        <div className="profile-stats">
-          <div className="stat-item">
-            <span className="stat-value">{userProfile.stats?.friends ?? 0}</span>
-            <span className="stat-label">Friends</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-value">{userProfile.stats?.groups ?? 0}</span>
-            <span className="stat-label">Groups</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-value">{userProfile.stats?.messages ?? 0}</span>
-            <span className="stat-label">Messages</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="profile-sections">
-        <button className="logout-button" onClick={handleLogout} disabled={isUploading}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-            <path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
-          </svg>
-          Logout
-        </button>
-      </div>
+      {/* Conditionally render the Share modal */}
+      {showShareModal && (
+        <Share
+          url="https://powwwow.netlify.app" // The URL to share
+          title="Join me on Powwow!"
+          text="Let's chat on Powwow! It's simple, secure messaging."
+          onClose={() => setShowShareModal(false)} // Function to close the modal
+        />
+      )}
     </div>
   );
 };

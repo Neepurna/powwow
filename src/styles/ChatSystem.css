@@ -1,19 +1,96 @@
 .chat-system-container {
   display: flex;
   flex-direction: column;
-  height: 100%; /* Fill the main content area */
+  flex: 1; /* Ensures it fills app-content */
   background-color: #121212;
-  overflow: hidden; /* Prevent container scroll, message area will scroll */
+  overflow: hidden; 
+  box-sizing: border-box; 
+}
+
+/* NEW: Internal Chat Header Styles */
+.chat-header-internal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px; /* Reduced padding */
+  height: 60px; /* Match old header height */
+  background-color: rgba(18, 18, 18, 0.9); /* Slightly transparent */
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  box-sizing: border-box;
+  position: sticky; /* Make it sticky */
+  top: 0; /* Stick to top */
+  z-index: 10; /* Ensure it's above message area */
+}
+
+.chat-back-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+.chat-back-button svg {
+  display: block;
+}
+
+.chat-title-internal {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center title content */
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 10px; /* Space around title */
+}
+
+.chat-title-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.chat-title-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-header-placeholder {
+  width: 34px; /* Match back button width */
+  height: 34px;
+  flex-shrink: 0;
+  visibility: hidden;
 }
 
 /* Message Area */
 .message-area {
-  flex: 1; /* Take up remaining space */
-  overflow-y: auto; /* Allow scrolling for messages */
-  padding: 15px;
+  flex: 1; 
+  overflow-y: auto; 
+  padding-left: 15px; 
+  padding-right: 15px; 
+  /* REMOVE padding-top: 15px; */ /* Header is sticky now */
+  padding-bottom: 15px; /* Space above input */
   display: flex;
-  flex-direction: column; /* Messages stack vertically */
-  /* Removed column-reverse, will handle order in JS/rendering if needed, but auto-scroll helps */
+  flex-direction: column;
+  justify-content: flex-end; 
+  min-height: 0; 
+  box-sizing: border-box; 
 }
 
 .message-placeholder {
@@ -30,35 +107,119 @@
 }
 
 /* --- Message Bubble Styles --- */
+
+/* NEW: Wrapper for avatar + bubble alignment */
+.message-wrapper {
+  display: flex;
+  margin-bottom: 8px; /* Space between messages */
+  max-width: 80%; /* Limit width of the entire wrapper */
+  position: relative; /* Context for sender name */
+}
+
+.message-wrapper.sent {
+  align-self: flex-end; /* Align sent messages to the right */
+  flex-direction: row-reverse; /* Reverse order for sent (bubble first) */
+}
+
+.message-wrapper.received {
+  align-self: flex-start; /* Align received messages to the left */
+  align-items: flex-end; /* Align avatar bottom with bubble bottom */
+}
+
+/* NEW: Sender Avatar Styles */
+.sender-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 8px; /* Space between avatar and bubble */
+  flex-shrink: 0; /* Prevent avatar from shrinking */
+  /* Removed margin-bottom, alignment handled by flex-end on wrapper */
+}
+
+.sender-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Adjust message bubble styles */
 .message-bubble {
-  max-width: 70%; /* Limit bubble width */
+  max-width: 100%; /* Bubble takes remaining width within wrapper */
   padding: 8px 12px;
-  border-radius: 18px; /* Rounded corners */
-  margin-bottom: 8px; /* Space between bubbles */
-  word-wrap: break-word; /* Break long words */
-  position: relative; /* For potential timestamp positioning */
+  border-radius: 18px; 
+  /* Removed margin-bottom, handled by wrapper */
+  word-wrap: break-word; 
+  position: relative; 
+  line-height: 1.4; /* Reset line-height for text */
+}
+
+/* Remove align-self from bubble, handled by wrapper */
+/* .message-bubble.sent { ... align-self: flex-end; ... } */
+/* .message-bubble.received { ... align-self: flex-start; ... } */
+
+/* Adjust padding for image messages if needed */
+.message-bubble.image-message {
+  padding: 0;
+  background-color: transparent; 
+  border-radius: 12px; 
+  overflow: hidden; 
+  line-height: 0; /* Keep for images */
 }
 
 .message-bubble .message-text {
   margin: 0;
   font-size: 0.9rem;
-  line-height: 1.4;
+  /* line-height: 1.4; */ /* Already set on bubble */
+}
+
+/* NEW: Sender Name Styles */
+.sender-name {
+  display: block; /* Make it a block element */
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6); /* Adjust color as needed */
+  margin-bottom: 3px; /* Space between name and message text */
+  padding-left: 2px; /* Slight indent */
+}
+/* Hide sender name in image messages if desired */
+.message-bubble.image-message .sender-name {
+  /* position: absolute; */
+  /* top: 2px; left: 5px; */
+  /* color: white; */
+  /* text-shadow: 1px 1px 2px rgba(0,0,0,0.7); */
+  display: none; /* Simpler to just hide for now */
+}
+
+/* Style for images within bubbles */
+.message-bubble .message-image {
+  display: block; /* Remove extra space below image */
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px; /* Rounded corners for the image itself */
+  cursor: pointer; /* Optional: Indicate it might be clickable later */
 }
 
 /* Sent messages */
-.message-bubble.sent {
+.message-wrapper.sent .message-bubble { /* Target bubble within sent wrapper */
   background-color: #99ff33; /* Accent color */
   color: #121212; /* Dark text */
-  align-self: flex-end; /* Align to the right */
-  border-bottom-right-radius: 4px; /* Slightly different corner */
+  border-bottom-right-radius: 4px; 
+}
+/* Override background for sent image messages */
+.message-wrapper.sent .message-bubble.image-message {
+  background-color: transparent; 
 }
 
 /* Received messages */
-.message-bubble.received {
+.message-wrapper.received .message-bubble { /* Target bubble within received wrapper */
   background-color: #2a2a2a; /* Dark grey */
   color: #e0e0e0; /* Light text */
-  align-self: flex-start; /* Align to the left */
-  border-bottom-left-radius: 4px; /* Slightly different corner */
+  border-bottom-left-radius: 4px; 
+}
+/* Override background for received image messages */
+.message-wrapper.received .message-bubble.image-message {
+  background-color: transparent;
 }
 
 /* Optional: Timestamp styling */
@@ -78,9 +239,12 @@
   display: flex;
   align-items: center;
   padding: 10px 12px;
-  background-color: #1e1e1e; /* Slightly different background */
+  background-color: #1e1e1e;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  min-height: 55px; /* Ensure consistent height */
+  min-height: 55px;
+  flex-shrink: 0; /* Prevent input area from shrinking */
+  box-sizing: border-box; /* Include padding/border */
+  /* This should naturally be at the bottom due to .message-area having flex: 1 */
 }
 
 .input-area input {
@@ -151,3 +315,14 @@
 .message-bubble.sent { ... }
 .message-bubble.received { ... }
 */
+
+/* Style attach/send buttons when disabled */
+.attach-button:disabled,
+.send-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.attach-button:disabled:hover,
+.send-button:disabled:hover {
+  background-color: transparent;
+}

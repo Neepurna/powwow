@@ -58,10 +58,12 @@ googleProvider.setCustomParameters({
 const db = getFirestore(app);
 
 // Define ParticipantDetails interface (can be moved to a types file)
-interface ParticipantDetails {
+export interface ParticipantDetails { // Export if not already
   uid: string;
   displayName: string;
-  photoURL: string;
+  photoURL: string | null; // <<< Allow null
+  isGroup?: boolean; // Add optional flag for groups
+  groupName?: string; // Add optional group name
 }
 
 // Google Sign In
@@ -287,10 +289,14 @@ export const createChat = async (currentUserId: string, otherUserId: string): Pr
         createdAt: serverTimestamp(),
         lastMessage: null,
         lastMessageTimestamp: null,
+        isGroup: false, // Explicitly set isGroup to false for direct chats
+        groupName: null, // Explicitly set groupName to null
+        createdBy: null, // Explicitly set createdBy to null
       };
-      console.log("[firebase] Data for setDoc:", JSON.stringify(chatDataToSet, null, 2)); 
       
-      // This is line 294 where the error occurs
+      // --- Add Logging Here ---
+      console.log("[firebase] Data for setDoc (Direct Chat):", JSON.stringify(chatDataToSet, null, 2)); 
+      
       await setDoc(chatDocRef, chatDataToSet); 
 
       // Optionally add participant subcollection docs (if needed for complex queries later)
@@ -303,6 +309,49 @@ export const createChat = async (currentUserId: string, otherUserId: string): Pr
   } catch (error) {
     console.error("Error creating or checking chat:", error);
     throw new Error("Failed to create chat.");
+  }
+};
+
+// --- NEW: Create Group Chat ---
+export const createGroupChat = async (
+  creatorId: string, 
+  groupName: string, 
+  participantIds: string[], // Should include creatorId
+  groupPhotoURL?: string | null // <<< Add optional groupPhotoURL
+): Promise<string | null> => {
+  
+  if (!creatorId || !groupName.trim() || participantIds.length < 2) {
+    console.error("Invalid data for group chat creation.");
+    throw new Error("Group name and at least two participants (including creator) are required.");
+  }
+
+  // Ensure creator is included in participants
+  if (!participantIds.includes(creatorId)) {
+    participantIds.push(creatorId);
+  }
+
+  const chatCollectionRef = collection(db, "chats");
+  const newChatDocRef = doc(chatCollectionRef); 
+
+  const groupData = {
+    participantIds: participantIds,
+    createdAt: serverTimestamp(),
+    lastMessage: `${groupName} created`, 
+    lastMessageTimestamp: serverTimestamp(),
+    isGroup: true,
+    groupName: groupName.trim(),
+    createdBy: creatorId, 
+    groupPhotoURL: groupPhotoURL || null, // <<< Store the group photo URL
+  };
+
+  try {
+    console.log("[firebase] Creating new group chat with data:", JSON.stringify(groupData, null, 2));
+    await setDoc(newChatDocRef, groupData);
+    console.log("New group chat created successfully:", newChatDocRef.id);
+    return newChatDocRef.id; 
+  } catch (error) {
+    console.error("Error creating group chat:", error);
+    throw new Error("Failed to create group chat.");
   }
 };
 
@@ -385,7 +434,7 @@ export const updateUserProfile = async (userId: string, profileData: any): Promi
       username: cleanUsername,
       dateOfBirth: profileData.dateOfBirth,
       gender: profileData.gender,
-      photoURL: profileData.photoURL || '', // Ensure photoURL is always a string
+      photoURL: profileData.photoURL || null, // <<< Ensure photoURL is null if empty string or undefined
       isProfileComplete: true,
       updatedAt: Timestamp.now() // Add an updated timestamp
     };
@@ -429,15 +478,15 @@ export const updateUserProfile = async (userId: string, profileData: any): Promi
 }
 
 // NEW FUNCTION: Update only the user's photo URL
-export const updateUserPhotoURL = async (userId: string, photoURL: string): Promise<void> => {
-  if (!userId || !photoURL) {
-    throw new Error("User ID and Photo URL are required.");
+export const updateUserPhotoURL = async (userId: string, photoURL: string | null): Promise<void> => { // <<< Allow null
+  if (!userId) { // photoURL can be null now
+    throw new Error("User ID is required.");
   }
 
   try {
     const userDocRef = doc(db, "users", userId);
     const dataToUpdate = {
-      photoURL: photoURL,
+      photoURL: photoURL, // Store null if provided
       updatedAt: Timestamp.now()
     };
 
@@ -470,8 +519,9 @@ export interface Message {
   text: string;
   senderId: string;
   createdAt: Timestamp; // Use Timestamp for serverTimestamp resolution
-  // Optional: Add photoURL if you want sender's avatar next to message
-  // senderPhotoURL?: string; 
+  // Optional: Add photoURL and display name for sender display in groups
+  senderPhotoURL?: string | null; 
+  senderDisplayName?: string | null; 
 }
 
 // Function to listen for messages in a chat
@@ -490,7 +540,7 @@ export const getMessagesListener = (
       ...doc.data(),
       // Ensure createdAt is a Timestamp, handle potential null from serverTimestamp briefly
       createdAt: doc.data().createdAt || Timestamp.now() 
-    } as Message));
+    } as Message)); // Cast to Message interface
     callback(messages);
   }, (error) => {
     console.error("Error listening to messages:", error);
@@ -505,7 +555,10 @@ export const getMessagesListener = (
 export const sendMessage = async (
   chatId: string, 
   senderId: string, 
-  text: string
+  text: string,
+  // Add sender details as optional parameters
+  senderDisplayName?: string | null, 
+  senderPhotoURL?: string | null 
 ): Promise<void> => {
   if (!chatId || !senderId || !text.trim()) {
     throw new Error("Chat ID, Sender ID, and message text are required.");
@@ -513,33 +566,37 @@ export const sendMessage = async (
 
   try {
     const messagesRef = collection(db, "chats", chatId, "messages");
-    const chatDocRef = doc(db, "chats", chatId);
+    const chatDocRef = doc(db, "chats", chatId); // Reference to the chat document itself
 
-    // Use a batch write for atomicity
+    const messageData = {
+      text: text.trim(),
+      senderId: senderId,
+      createdAt: serverTimestamp(),
+      senderDisplayName: senderDisplayName || null, // Store sender name
+      senderPhotoURL: senderPhotoURL || null, // Store sender photo
+    };
+
+    // Use a batch write to add the message and update the chat's last message atomically
     const batch = writeBatch(db);
 
     // 1. Add the new message document
-    const newMessageRef = doc(collection(db, "chats", chatId, "messages")); // Generate ref beforehand
-    batch.set(newMessageRef, {
-      text: text.trim(),
-      senderId: senderId,
-      createdAt: serverTimestamp() // Use server timestamp
-    });
+    const newMessageRef = doc(messagesRef); // Create ref for the new message
+    batch.set(newMessageRef, messageData);
 
     // 2. Update the parent chat document
     batch.update(chatDocRef, {
-      lastMessage: text.trim(),
-      lastMessageTimestamp: serverTimestamp()
-      // Optional: Update unread counts here if implementing
+      lastMessage: text.trim(), // Store the latest message text
+      lastMessageTimestamp: serverTimestamp() // Update timestamp
     });
 
     // Commit the batch
     await batch.commit();
-    console.log("Message sent and chat updated.");
+
+    console.log("Message sent and chat updated successfully.");
 
   } catch (error) {
     console.error("Error sending message:", error);
-    throw error; // Rethrow the error
+    throw new Error("Failed to send message.");
   }
 };
 

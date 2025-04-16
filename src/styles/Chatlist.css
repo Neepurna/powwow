@@ -1,48 +1,62 @@
 .chatlist-container {
-  height: 100%;
-  padding: 0 0 60px; /* Remove top padding, header is absolute */
-  overflow-y: visible; /* Changed from auto since parent has scroll */
+  height: 100%; /* Take full height of parent (.app-content) */
+  /* padding: 0; Remove padding */ /* Padding handled by title/list */
+  overflow: hidden; /* Change from auto to hidden, list will scroll */
   position: relative;
   background-color: #121212;
+  display: flex; /* Use flexbox */
+  flex-direction: column; /* Stack title and list */
 }
 
-.search-container {
-  padding: 10px 16px;
-  position: sticky;
-  top: 0; /* Changed from 60px */
-  background-color: #121212;
-  z-index: 10;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  background-color: #1e1e1e;
-  border-radius: 20px;
-  padding: 0 15px;
-  height: 40px;
-}
-
-.search-box svg {
-  margin-right: 8px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.search-box input {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 0.9rem;
-  flex: 1;
-  outline: none;
-}
-
-.search-box input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
+/* <<< Remove search-container styles >>> */
+/* .search-container { ... } */
+/* .search-box { ... } */
+/* .search-box svg { ... } */
+/* .search-box input { ... } */
+/* .search-box input::placeholder { ... } */
+/* .clear-search { ... } */
+/* .clear-search:hover { ... } */
 
 .chat-list {
-  padding: 0 16px;
+  padding: 0 16px; /* Restore padding for the list itself */
+  flex: 1; /* Allow list to grow */
+  overflow-y: auto; /* Allow scrolling within the list */
+}
+
+/* Placeholder styles (used for no results/error/loading) */
+.search-placeholder, .loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1; /* Takes up space */
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  padding: 20px;
+  /* Remove height adjustments */
+}
+
+.placeholder-text {
+  font-size: 1rem;
+  max-width: 280px;
+}
+
+.loading-screen {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.loading-spinner {
+  width: 30px; 
+  height: 30px;
+  border: 3px solid rgba(153, 255, 51, 0.2);
+  border-top-color: #99ff33;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .chat-item {
@@ -142,33 +156,113 @@
   padding: 0 6px;
 }
 
-.new-chat-button {
-  position: fixed;
-  bottom: 75px; /* Position above the footer */
+/* Container for action buttons */
+.action-buttons-container {
+  position: absolute; /* Position relative to chatlist-container */
+  bottom: 15px; /* Space from bottom edge */
   right: 20px;
+  display: flex;
+  flex-direction: column; 
+  gap: 15px; 
+  z-index: 990; 
+}
+
+/* Common styles for action buttons */
+.action-button {
   width: 50px;
   height: 50px;
-  border-radius: 28px;
-  background: linear-gradient(135deg, #99ff33, #66cc00);
-  box-shadow: 0 4px 12px rgba(153, 255, 51, 0.3);
+  border-radius: 28px; /* More rounded */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 990; /* Just below footer z-index */
+  /* Remove box-shadow from common style, apply individually if needed */
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); */
+  transition: transform 0.2s ease, filter 0.3s ease; /* Add filter transition */
   transform-origin: center center; /* Ensure proper scaling */
+  /* Add base filter for smooth transition */
+  filter: drop-shadow(0 0 0 rgba(153, 255, 51, 0)); 
+  /* Remove background and border from common style */
+  background: none;
+  border: none;
+  padding: 0; /* Remove padding if any */
+  cursor: pointer;
 }
 
-.new-chat-button svg {
-  color: #121212;
+/* Remove general img styling if not needed */
+/* .action-button img { ... } */
+
+/* Remove general svg styling */
+/* .action-button svg { ... } */
+
+/* Remove general hover effect changing transform/shadow */
+/* .action-button:hover { ... } */
+
+/* Remove general active effect */
+/* .action-button:active { ... } */
+
+/* Specific styles for New Chat button (Now just the Group Icon) */
+.new-chat-button {
+  /* Override any previous background/border */
+  background: none !important; 
+  border: none !important;
+  box-shadow: none !important; /* Remove shadow from button itself */
+  width: auto; /* Adjust size to fit icon */
+  height: auto;
 }
 
-.new-chat-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(153, 255, 51, 0.4);
+.new-chat-button img {
+  width: 36px; /* Adjust icon size as needed */
+  height: 36px;
+  /* Make icon white by default */
+  filter: invert(100%) brightness(1.5); 
+  transition: filter 0.3s ease, transform 0.2s ease; /* Smooth transition */
 }
 
-.new-chat-button:active {
-  transform: translateY(-1px);
+.new-chat-button:hover img {
+  /* Make icon green on hover */
+  filter: 
+    invert(75%) /* Adjust inversion */
+    sepia(30%) /* Adjust sepia */
+    saturate(500%) /* Boost saturation */
+    hue-rotate(80deg) /* Shift hue to green */
+    brightness(1.1); /* Slightly brighten */
+    /* Optional: Add a very subtle glow */
+    /* drop-shadow(0 0 3px rgba(153, 255, 51, 0.4)); */
+  transform: scale(1.1); /* Slight scale effect */
+}
+
+.new-chat-button:active img {
+  transform: scale(1.05); /* Slightly smaller scale on click */
+  /* Keep green color on active, maybe slightly darker/less bright */
+  filter: 
+    invert(70%) 
+    sepia(40%) 
+    saturate(500%) 
+    hue-rotate(80deg) 
+    brightness(1.0); 
+}
+
+/* Specific styles for Create Group button (Now has Plus Icon, opens modal) */
+.create-group-button {
+  /* Style previously for new-chat-button */
+  background: linear-gradient(135deg, #99ff33, #66cc00);
+  /* Set the color for the inline SVG */
+  color: #121212; /* Dark color for the plus icon */
+}
+
+/* Remove the filter rule for the img */
+/* .create-group-button img {
+   filter: brightness(0) invert(0.1); 
+} */
+
+/* Ensure SVG inherits the color */
+.create-group-button svg {
+  fill: currentColor; 
+}
+
+.create-group-button:hover {
+  /* Keep hover effect consistent or adjust as needed */
+  /* background: #444; */ /* Remove if using gradient */
 }
 
 .chatlist-error {
@@ -216,6 +310,13 @@
   .chatlist-container {
     position: relative;
   }
+
+  /* Adjust button positioning for wider screens if needed */
+  .action-buttons-container {
+    /* Example: Keep fixed but adjust position */
+    right: calc(50% - 188px + 20px); /* Center relative to app width (approx 376px) */
+    /* Or adjust based on your layout */
+  }
 }
 
 @media (max-width: 480px) {
@@ -226,12 +327,46 @@
   }
 }
 
-@media (max-width: 768px) {
-  .chatlist-container {
-    padding-top: 0; /* Remove top padding */
-  }
-  
-  .search-container {
-    top: 0;
-  }
+/* Remove media query adjustments related to search container */
+/* @media (max-width: 768px) { ... } */
+
+/* Placeholder styles (used for no results/error) */
+.search-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1; /* Takes up space */
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  padding: 20px;
+}
+
+.placeholder-text {
+  font-size: 1rem;
+  max-width: 280px;
+}
+
+/* Loading screen styles */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1; /* Takes up space */
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.loading-spinner {
+  width: 30px; /* Smaller spinner */
+  height: 30px;
+  border: 3px solid rgba(153, 255, 51, 0.2);
+  border-top-color: #99ff33;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
