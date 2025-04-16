@@ -185,7 +185,7 @@
   position: relative;
 }
 
-/* Mobile Frame - Removed animations */
+/* Mobile Frame - Remove the notch */
 .mobile-frame {
   width: 360px; /* Adjusted size */
   height: 740px; /* Adjusted size */
@@ -201,7 +201,8 @@
   transform: rotate(0); /* No rotation */
 }
 
-.mobile-frame::before {
+/* Remove the notch code */
+/* .mobile-frame::before {
   content: '';
   position: absolute;
   top: 0;
@@ -213,7 +214,7 @@
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
   z-index: 100;
-}
+} */
 
 /* The app content wrapper ensures proper fitting */
 .app-content-wrapper {

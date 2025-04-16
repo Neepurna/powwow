@@ -12,7 +12,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ children }) => {
       {/* Welcome Panel */}
       <div className="welcome-panel">
         <img src={logoImage} alt="Powwow Logo" className="welcome-logo" />
-        <h1 className="welcome-title">Powwow</h1>
+        
         <h2 className="welcome-subtitle">Link Up. Speak Out. Stay Lit!</h2>
         <p className="welcome-description">
           Powwow is a modern messaging platform that brings people together in a simple, 
@@ -58,7 +58,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ children }) => {
         <p className="welcome-cta">Try the app demo on the right →</p>
       </div>
       
-      {/* App Panel - Mobile Frame - Static positioning */}
+      {/* App Panel - Mobile Frame - Static positioning without notch */}
       <div className="app-panel">
         <div className="mobile-frame">
           <div className="app-content-wrapper">

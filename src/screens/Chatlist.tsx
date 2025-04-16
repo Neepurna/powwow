@@ -451,7 +451,7 @@ const Chatlist = ({
           onClick={handleCreateGroupClick}
           title="Create Group"
         >
-          <img src={groupIcon} alt="Create Group" />
+          <img src={groupIcon} alt="Create Group" className="group-icon" />
         </button>
       </div>
 

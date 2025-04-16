@@ -211,35 +211,25 @@
 }
 
 .new-chat-button img {
-  width: 36px; /* Adjust icon size as needed */
-  height: 36px;
+  width: 48px; /* Increased from 36px to make it bigger */
+  height: 48px; /* Increased from 36px to make it bigger */
   /* Make icon white by default */
   filter: invert(100%) brightness(1.5); 
-  transition: filter 0.3s ease, transform 0.2s ease; /* Smooth transition */
+  transition: all 0.3s ease; /* Simplified transition */
 }
 
 .new-chat-button:hover img {
-  /* Make icon green on hover */
-  filter: 
-    invert(75%) /* Adjust inversion */
-    sepia(30%) /* Adjust sepia */
-    saturate(500%) /* Boost saturation */
-    hue-rotate(80deg) /* Shift hue to green */
-    brightness(1.1); /* Slightly brighten */
-    /* Optional: Add a very subtle glow */
-    /* drop-shadow(0 0 3px rgba(153, 255, 51, 0.4)); */
-  transform: scale(1.1); /* Slight scale effect */
+  /* Clean, simple color transformation without sepia or excessive saturation */
+  filter: invert(70%) brightness(1.2) /* Basic white-to-green transformation */
+         drop-shadow(0 0 8px rgba(153, 255, 51, 0.6)); /* Add simple glow effect */
+  transform: scale(1.15); /* Slightly larger scale effect for more emphasis */
 }
 
 .new-chat-button:active img {
-  transform: scale(1.05); /* Slightly smaller scale on click */
-  /* Keep green color on active, maybe slightly darker/less bright */
-  filter: 
-    invert(70%) 
-    sepia(40%) 
-    saturate(500%) 
-    hue-rotate(80deg) 
-    brightness(1.0); 
+  transform: scale(1.08); /* Slightly smaller scale on click */
+  /* Similar clean filter for active state */
+  filter: invert(70%) brightness(1.2)
+         drop-shadow(0 0 5px rgba(153, 255, 51, 0.5)); /* Slightly reduced glow when clicked */
 }
 
 /* Specific styles for Create Group button (Now has Plus Icon, opens modal) */
