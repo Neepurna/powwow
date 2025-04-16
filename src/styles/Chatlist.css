@@ -132,8 +132,8 @@
 }
 
 .new-chat-button {
-  position: fixed; /* Changed back to fixed for global positioning */
-  bottom: 45px; /* Increased from 30px to move button upwards */
+  position: fixed;
+  bottom: 75px; /* Position above the footer */
   right: 20px;
   width: 50px;
   height: 50px;
@@ -143,7 +143,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100; /* Increased z-index to ensure it's above other elements */
+  z-index: 990; /* Just below footer z-index */
+  transform-origin: center center; /* Ensure proper scaling */
 }
 
 .new-chat-button svg {
@@ -161,9 +162,23 @@
 
 @media (min-width: 480px) {
   .new-chat-button {
-    /* Properly position within the phone container outline */
-    right: calc(50% - 176px); /* Center of screen minus half of app width (376px/2) plus button position (20px) */
-    bottom: 85px; /* Increased from 70px to maintain the same proportional adjustment */
+    position: fixed; /* Keep it fixed instead of absolute */
+    right: calc(50% - 168px); /* Center + offset: half app width (376px/2) minus right margin (20px) */
+    bottom: 75px;
+    transform: none;
+  }
+  
+  /* Container needs to be positioned relative for absolute positioning of button */
+  .chatlist-container {
+    position: relative;
+  }
+}
+
+@media (max-width: 480px) {
+  .new-chat-button {
+    position: fixed;
+    right: 20px;
+    bottom: 75px;
   }
 }
 

@@ -1,6 +1,6 @@
 .profile-container {
   height: 100%;
-  padding: 0 0 60px; /* Remove top padding */
+  padding: 0 0 80px; /* Increase bottom padding to account for footer height */
   background-color: #121212;
   overflow-y: visible; /* Changed to let parent container handle scrolling */
 }
