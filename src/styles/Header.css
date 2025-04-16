@@ -41,6 +41,12 @@
   margin: 0;
 }
 
+/* Add styles for the header logo */
+.header-logo {
+  height: 28px; /* Adjust height as needed */
+  width: auto;
+}
+
 .header-actions {
   position: absolute; /* Position absolutely */
   right: 16px; /* Align to the right */

@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import '../styles/Header.css';
+// Import the logo image
+import logoImage from '../assets/logo.png';
 
 interface HeaderProps {
   title?: string;
   showBackButton?: boolean;
   onBackClick?: () => void;
+  showLogo?: boolean; // Add showLogo prop
 }
 
-const Header = ({ title = 'PowWow!', showBackButton = false, onBackClick }: HeaderProps) => {
+const Header = ({ title = 'PowWow!', showBackButton = false, onBackClick, showLogo = false }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -41,7 +44,12 @@ const Header = ({ title = 'PowWow!', showBackButton = false, onBackClick }: Head
             </svg>
           </button>
         )}
-        <h1 className="header-title">{title}</h1>
+        {/* Conditionally render logo or title */}
+        {showLogo ? (
+          <img src={logoImage} alt="PowWow Logo" className="header-logo" />
+        ) : (
+          <h1 className="header-title">{title}</h1>
+        )}
       </div>
     </header>
   );

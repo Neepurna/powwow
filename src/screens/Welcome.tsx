@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { User } from 'firebase/auth';
 import SignIn from '../components/SignIn';
 import '../styles/Welcome.css';
+// Import the logo image
+import logoImage from '../assets/logo.png';
 
 interface WelcomeProps {
   onLogin: (user: User) => void;
@@ -24,7 +26,8 @@ const Welcome = ({ onLogin }: WelcomeProps) => {
   return (
     <div className="welcome-container">
       <div className="welcome-content">
-        <h1 className="app-title">PowWow!</h1>
+        {/* Replace h1 with img */}
+        <img src={logoImage} alt="PowWow Logo" className="app-logo" /> 
         
         <div className="welcome-image-container">
           <img 

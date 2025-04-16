@@ -97,7 +97,7 @@ function App() {
     }
   };
 
-  // Get the header title based on active tab
+  // Modify getHeaderTitle to return null for chats tab
   const getHeaderTitle = () => {
     if (needsKYC) {
       return 'Complete Profile';
@@ -105,13 +105,13 @@ function App() {
     
     switch (activeTab) {
       case 'chats':
-        return 'PowWow!';
+        return null; // Indicate logo should be shown instead of title
       case 'search':
         return 'Discover';
       case 'profile':
         return 'Profile';
       default:
-        return 'PowWow!';
+        return null; // Default to logo for safety
     }
   };
 
@@ -124,13 +124,17 @@ function App() {
     );
   }
 
+  const headerTitle = getHeaderTitle();
+  const showLogoInHeader = activeTab === 'chats' && !needsKYC;
+
   return (
     <div className="app">
       {!isLoggedIn ? (
         <Welcome onLogin={handleLogin} />
       ) : (
         <>
-          {!needsKYC && <Header title={getHeaderTitle()} />}
+          {/* Pass showLogo prop to Header */}
+          {!needsKYC && <Header title={headerTitle ?? undefined} showLogo={showLogoInHeader} />}
           <div className={needsKYC ? "main-content no-header" : "main-content"}>
             {renderContent()}
           </div>
