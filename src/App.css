@@ -71,6 +71,10 @@
   overflow-y: visible; /* Allow content to determine scrolling behavior */
 }
 
+.main-content.no-header {
+  padding-top: 0; /* Remove top padding when header is not shown */
+}
+
 /* Ensure content is properly positioned within the mobile container */
 @media (min-width: 480px) {
   .main-content {

@@ -11,13 +11,13 @@ const Welcome = ({ onLogin }: WelcomeProps) => {
   const [error, setError] = useState<string | null>(null);
 
   const handleLoginSuccess = (user: User) => {
-    console.log('User signed in:', user.displayName);
+    console.log('User signed in:', user.displayName || user.email);
     // Pass the user object to the parent component
     onLogin(user);
   };
 
   const handleLoginError = (error: Error) => {
-    setError('Login failed. Please try again.');
+    setError('Login failed. Please try again later.');
     console.error('Login error:', error.message);
   };
 

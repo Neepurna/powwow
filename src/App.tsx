@@ -18,24 +18,27 @@ function App() {
 
   // Check user auth state and KYC status on load
   useEffect(() => {
+    setIsLoading(true);
+    
     // This will listen for auth state changes
     const unsubscribe = observeAuthState(async (user) => {
-      setIsLoading(true);
-      
       if (user) {
         console.log("User signed in:", user.uid);
-        setIsLoggedIn(true);
-        setCurrentUser(user);
         
         try {
           // Check if user has completed KYC
           const profileComplete = await isUserProfileComplete(user.uid);
           console.log("Profile complete:", profileComplete);
+          
+          // Set both states together after we have the profile status
+          setCurrentUser(user);
           setNeedsKYC(!profileComplete);
+          setIsLoggedIn(true);
         } catch (error) {
           console.error("Error checking profile status:", error);
-          // If there's an error checking profile status, assume KYC is needed
+          setCurrentUser(user);
           setNeedsKYC(true);
+          setIsLoggedIn(true);
         }
       } else {
         console.log("No user signed in");
@@ -127,8 +130,8 @@ function App() {
         <Welcome onLogin={handleLogin} />
       ) : (
         <>
-          <Header title={getHeaderTitle()} />
-          <div className="main-content">
+          {!needsKYC && <Header title={getHeaderTitle()} />}
+          <div className={needsKYC ? "main-content no-header" : "main-content"}>
             {renderContent()}
           </div>
           {!needsKYC && <Footer activeTab={activeTab} onTabChange={handleTabChange} />}

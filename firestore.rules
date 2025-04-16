@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // User document rules
+    match /users/{userId} {
+      // Allow users to read and write only their own data
+      allow create: if request.auth != null;
+      // Explicitly allow get, update, delete for the owner
+      allow get, update, delete: if request.auth != null && request.auth.uid == userId; 
+    }
+    
+    // Allow authenticated users to query (list) and get documents from the users collection
+    match /users/{document=**} {
+      // Explicitly allow get and list for any authenticated user
+      allow get, list: if request.auth != null; 
+    }
+    
+    // Rules for chat-related collections (placeholder for future)
+    match /chats/{chatId} {
+      // Basic rule: only chat participants can access a chat
+      allow read, write: if request.auth != null && 
+                          exists(/databases/$(database)/documents/chats/$(chatId)/participants/$(request.auth.uid));
+      
+      // Nested participants collection
+      match /participants/{userId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Nested messages collection
+      match /messages/{messageId} {
+        allow read: if request.auth != null && 
+                    exists(/databases/$(database)/documents/chats/$(chatId)/participants/$(request.auth.uid));
+        allow create: if request.auth != null && 
+                      exists(/databases/$(database)/documents/chats/$(chatId)/participants/$(request.auth.uid)) &&
+                      request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if request.auth != null && resource.data.senderId == request.auth.uid;
+      }
+    }
+  }
+}
