@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { User } from 'firebase/auth';
+import SignIn from '../components/SignIn';
 import '../styles/Welcome.css';
 
 interface WelcomeProps {
@@ -6,21 +8,19 @@ interface WelcomeProps {
 }
 
 const Welcome = ({ onLogin }: WelcomeProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleGoogleSignIn = () => {
-    setIsLoading(true);
-    // Here you would implement actual Google Sign-In logic
-    // For now, just simulate loading state
-    setTimeout(() => {
-      setIsLoading(false);
-      // Trigger the login callback
-      if (onLogin) {
-        onLogin();
-      } else {
-        alert('Google Sign-In would happen here');
-      }
-    }, 1500);
+  const handleLoginSuccess = (user: User) => {
+    console.log('User signed in:', user.displayName);
+    // You can store user data in context or state management if needed
+    if (onLogin) {
+      onLogin();
+    }
+  };
+
+  const handleLoginError = (error: Error) => {
+    setError('Login failed. Please try again.');
+    console.error('Login error:', error.message);
   };
 
   return (
@@ -40,13 +40,12 @@ const Welcome = ({ onLogin }: WelcomeProps) => {
           Link Up. Speak Out. Stay Lit!
         </p>
 
-        <button 
-          className="google-signin-btn"
-          onClick={handleGoogleSignIn}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Signing in...' : 'Sign in with Google'}
-        </button>
+        <SignIn 
+          onLoginSuccess={handleLoginSuccess} 
+          onLoginError={handleLoginError}
+        />
+        
+        {error && <p className="login-error">{error}</p>}
         
         <p className="welcome-footer">
           Simple. Secure. Reliable messaging.
