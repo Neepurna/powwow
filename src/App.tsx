@@ -11,7 +11,7 @@ import Footer, { TabType } from './components/Footer';
 import { User } from 'firebase/auth';
 // Import necessary functions from firebase service
 import {
-  getCurrentUser,
+  // getCurrentUser, // <-- Remove this line
   isUserProfileComplete,
   observeAuthState,
   createChat,
@@ -238,9 +238,8 @@ function App() {
                               onUserSelected={handleUserSelected}
                             /> : null;
       case 'profile':
-        return currentUser ? <Profile
-                                user={currentUser}
-                              /> : null;
+        // Remove the user prop here
+        return currentUser ? <Profile /> : null;
       default:
         return null;
     }
