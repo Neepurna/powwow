@@ -6,7 +6,7 @@ import {
   signInWithPopup, 
   User,
   onAuthStateChanged,
-  updateProfile,
+  updateProfile as updateAuthProfile, // Alias auth updateProfile
   browserPopupRedirectResolver
 } from "firebase/auth";
 import { 
@@ -14,11 +14,10 @@ import {
   doc,
   setDoc,
   getDoc,
-  updateDoc,
+  updateDoc, // Ensure updateDoc is imported
   collection,
   query,
   where,
-  getDocs,
   Timestamp, // Import Timestamp
   addDoc, // Import addDoc
   serverTimestamp, // Import serverTimestamp
@@ -314,7 +313,7 @@ export const updatePendingChats = async (userId: string, usersToAdd: Participant
   }
 };
 
-// Update user profile
+// Update user profile (used by KYC)
 export const updateUserProfile = async (userId: string, profileData: any): Promise<void> => {
   try {
     const cleanUsername = profileData.username ? profileData.username.trim() : '';
@@ -382,7 +381,7 @@ export const updateUserProfile = async (userId: string, profileData: any): Promi
     const currentUser = auth.currentUser;
     if (currentUser && (dataToUpdate.displayName || dataToUpdate.photoURL)) {
       try {
-        await updateProfile(currentUser, {
+        await updateAuthProfile(currentUser, {
           displayName: dataToUpdate.displayName || currentUser.displayName,
           photoURL: dataToUpdate.photoURL || currentUser.photoURL
         });
@@ -398,5 +397,39 @@ export const updateUserProfile = async (userId: string, profileData: any): Promi
     throw error;
   }
 }
+
+// NEW FUNCTION: Update only the user's photo URL
+export const updateUserPhotoURL = async (userId: string, photoURL: string): Promise<void> => {
+  if (!userId || !photoURL) {
+    throw new Error("User ID and Photo URL are required.");
+  }
+
+  try {
+    const userDocRef = doc(db, "users", userId);
+    const dataToUpdate = {
+      photoURL: photoURL,
+      updatedAt: Timestamp.now()
+    };
+
+    // Update Firestore document
+    await updateDoc(userDocRef, dataToUpdate);
+    console.log("User photoURL updated in Firestore.");
+
+    // Update Firebase Auth profile as well
+    const currentUser = auth.currentUser;
+    if (currentUser && currentUser.uid === userId) {
+      try {
+        await updateAuthProfile(currentUser, { photoURL: photoURL });
+        console.log("Firebase Auth profile photoURL updated.");
+      } catch (authUpdateError) {
+        console.error("Failed to update Firebase Auth profile photoURL:", authUpdateError);
+        // Non-critical, maybe log or notify user separately
+      }
+    }
+  } catch (error) {
+    console.error("Error in updateUserPhotoURL function:", error);
+    throw error; // Rethrow the error
+  }
+};
 
 export { auth, app, analytics, db };
