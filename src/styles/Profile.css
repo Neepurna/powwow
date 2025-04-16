@@ -88,22 +88,41 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  background-color: #99ff33; /* Accent color */
-  color: #121212;
-  border: 2px solid #121212; /* Match background */
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
+  /* Remove background and border */
+  background-color: transparent; 
+  border: none;
+  /* Adjust size and padding if needed */
+  width: auto; /* Let size be determined by SVG */
+  height: auto;
+  padding: 5px; /* Add some clickable area around the icon */
+  /* Style the icon color */
+  color: #ffffff; /* White icon */
+  cursor: pointer;
+  transition: color 0.2s ease;
+  /* Add a subtle background for better visibility/clickability if desired */
+  background-color: rgba(0, 0, 0, 0.4); /* Optional: Dark semi-transparent background */
+  border-radius: 50%; /* Keep it circular if background is used */
+  display: flex; /* Keep flex for centering */
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+}
+
+.edit-avatar-button svg {
+   /* Adjust icon size if needed */
+   width: 20px;
+   height: 20px;
+}
+
+.edit-avatar-button:hover {
+  color: #99ff33; /* Accent color on hover */
+  background-color: rgba(0, 0, 0, 0.6); /* Optional: Darken background on hover */
 }
 
 .edit-avatar-button:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.4; /* Make it more faded when disabled */
+  color: rgba(255, 255, 255, 0.4); /* Faded icon color */
+  background-color: rgba(0, 0, 0, 0.2); /* Optional: Faded background */
 }
 
 .profile-info {
