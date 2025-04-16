@@ -1,13 +1,15 @@
 .profile-container {
-  height: 100%;
-  padding: 0 0 80px; /* Increase bottom padding to account for footer height */
+  height: calc(100% - 60px); /* Set fixed height accounting for footer */
   background-color: #121212;
-  overflow-y: visible; /* Changed to let parent container handle scrolling */
+  overflow-y: hidden; /* Prevent scrolling */
+  display: flex;
+  flex-direction: column;
 }
 
 .profile-header {
   position: relative;
   height: 150px;
+  flex-shrink: 0;
 }
 
 .profile-cover {
@@ -66,8 +68,12 @@
 }
 
 .profile-info {
-  padding: 60px 16px 20px; /* Reduced horizontal padding */
+  padding: 60px 16px 20px;
   text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .profile-name {
@@ -147,7 +153,8 @@
 }
 
 .profile-sections {
-  padding: 0 16px 20px; /* Reduced horizontal padding */
+  padding: 0 16px 20px;
+  margin-top: auto; /* Push to bottom */
 }
 
 .profile-section {
@@ -234,7 +241,6 @@ input:checked + .toggle-slider:before {
   background-color: rgba(255, 0, 0, 0.1);
   color: #ff5555;
   border: 1px solid rgba(255, 0, 0, 0.3);
-  margin-top: 20px;
   padding: 12px;
   font-weight: 600;
 }

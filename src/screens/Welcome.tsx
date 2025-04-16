@@ -4,7 +4,7 @@ import SignIn from '../components/SignIn';
 import '../styles/Welcome.css';
 
 interface WelcomeProps {
-  onLogin?: () => void;
+  onLogin: (user: User) => void;
 }
 
 const Welcome = ({ onLogin }: WelcomeProps) => {
@@ -12,10 +12,8 @@ const Welcome = ({ onLogin }: WelcomeProps) => {
 
   const handleLoginSuccess = (user: User) => {
     console.log('User signed in:', user.displayName);
-    // You can store user data in context or state management if needed
-    if (onLogin) {
-      onLogin();
-    }
+    // Pass the user object to the parent component
+    onLogin(user);
   };
 
   const handleLoginError = (error: Error) => {
