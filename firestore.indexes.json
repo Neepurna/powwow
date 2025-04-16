@@ -8,7 +8,7 @@
         { "fieldPath": "lastMessageTimestamp", "order": "DESCENDING" }
       ]
     }
-    // You might need other indexes later, e.g., for username uniqueness if not handled differently
+    
   ],
   "fieldOverrides": []
 }

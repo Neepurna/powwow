@@ -22,7 +22,12 @@ import {
   addDoc, // Import addDoc
   serverTimestamp, // Import serverTimestamp
   arrayUnion, // Import arrayUnion
-  arrayRemove // Import arrayRemove if needed, but overwriting is simpler here
+  arrayRemove, // Import arrayRemove if needed, but overwriting is simpler here
+  orderBy, // Import orderBy
+  onSnapshot, // Ensure onSnapshot is imported
+  limit, // Optional: for limiting initial message load
+  writeBatch, // For atomic updates
+  getDocs // <<< Add getDocs here
 } from "firebase/firestore";
 
 // Firebase configuration from environment variables
@@ -237,6 +242,17 @@ export const findUsersByUsername = async (usernameQuery: string): Promise<any[]>
 
 // Create a chat between two users
 export const createChat = async (currentUserId: string, otherUserId: string): Promise<string | null> => {
+  // --- Add Logging Here ---
+  console.log(`[firebase] createChat called with:`);
+  console.log(`[firebase] currentUserId: ${currentUserId}`);
+  console.log(`[firebase] otherUserId: ${otherUserId}`);
+  // --- End Logging ---
+
+  if (!currentUserId || !otherUserId) {
+    console.error("[firebase] createChat Error: One or both user IDs are missing.");
+    return null; // Or throw an error
+  }
+
   if (currentUserId === otherUserId) {
     console.error("Cannot create chat with oneself.");
     return null;
@@ -251,17 +267,31 @@ export const createChat = async (currentUserId: string, otherUserId: string): Pr
 
     if (chatDocSnap.exists()) {
       // Chat already exists
-      console.log("Chat already exists:", chatDocId);
+      console.log("[firebase] Chat already exists:", chatDocId);
       return chatDocId;
     } else {
       // Chat doesn't exist, create it
-      console.log("Creating new chat:", chatDocId);
-      await setDoc(chatDocRef, {
-        participantIds: [currentUserId, otherUserId],
+      console.log("[firebase] Creating new chat:", chatDocId);
+      
+      // --- Add More Detailed Logging Here ---
+      const participants = [currentUserId, otherUserId];
+      console.log(`[firebase] Preparing participantIds: [${participants[0]}, ${participants[1]}] (Type: ${typeof participants[0]}, ${typeof participants[1]}) (Length: ${participants.length})`);
+      if (!participants[0] || !participants[1] || typeof participants[0] !== 'string' || typeof participants[1] !== 'string') {
+          console.error("[firebase] CRITICAL: Invalid participant UIDs detected just before setDoc!", participants);
+          throw new Error("Invalid participant UIDs provided for chat creation.");
+      }
+      // --- End Logging ---
+
+      const chatDataToSet = {
+        participantIds: participants, // Use the validated array
         createdAt: serverTimestamp(),
         lastMessage: null,
         lastMessageTimestamp: null,
-      });
+      };
+      console.log("[firebase] Data for setDoc:", JSON.stringify(chatDataToSet, null, 2)); 
+      
+      // This is line 294 where the error occurs
+      await setDoc(chatDocRef, chatDataToSet); 
 
       // Optionally add participant subcollection docs (if needed for complex queries later)
       // await setDoc(doc(db, "chats", chatDocId, "participants", currentUserId), { joinedAt: serverTimestamp() });
@@ -428,6 +458,87 @@ export const updateUserPhotoURL = async (userId: string, photoURL: string): Prom
     }
   } catch (error) {
     console.error("Error in updateUserPhotoURL function:", error);
+    throw error; // Rethrow the error
+  }
+};
+
+// --- Chat Messages ---
+
+// Interface for a chat message
+export interface Message {
+  id: string; // Document ID
+  text: string;
+  senderId: string;
+  createdAt: Timestamp; // Use Timestamp for serverTimestamp resolution
+  // Optional: Add photoURL if you want sender's avatar next to message
+  // senderPhotoURL?: string; 
+}
+
+// Function to listen for messages in a chat
+export const getMessagesListener = (
+  chatId: string, 
+  callback: (messages: Message[]) => void, 
+  onError: (error: Error) => void
+): (() => void) => { // Returns an unsubscribe function
+  
+  const messagesRef = collection(db, "chats", chatId, "messages");
+  const q = query(messagesRef, orderBy("createdAt", "asc")); // Order by creation time
+
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const messages = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      // Ensure createdAt is a Timestamp, handle potential null from serverTimestamp briefly
+      createdAt: doc.data().createdAt || Timestamp.now() 
+    } as Message));
+    callback(messages);
+  }, (error) => {
+    console.error("Error listening to messages:", error);
+    onError(error);
+  });
+
+  return unsubscribe; // Return the unsubscribe function for cleanup
+};
+
+
+// Function to send a message
+export const sendMessage = async (
+  chatId: string, 
+  senderId: string, 
+  text: string
+): Promise<void> => {
+  if (!chatId || !senderId || !text.trim()) {
+    throw new Error("Chat ID, Sender ID, and message text are required.");
+  }
+
+  try {
+    const messagesRef = collection(db, "chats", chatId, "messages");
+    const chatDocRef = doc(db, "chats", chatId);
+
+    // Use a batch write for atomicity
+    const batch = writeBatch(db);
+
+    // 1. Add the new message document
+    const newMessageRef = doc(collection(db, "chats", chatId, "messages")); // Generate ref beforehand
+    batch.set(newMessageRef, {
+      text: text.trim(),
+      senderId: senderId,
+      createdAt: serverTimestamp() // Use server timestamp
+    });
+
+    // 2. Update the parent chat document
+    batch.update(chatDocRef, {
+      lastMessage: text.trim(),
+      lastMessageTimestamp: serverTimestamp()
+      // Optional: Update unread counts here if implementing
+    });
+
+    // Commit the batch
+    await batch.commit();
+    console.log("Message sent and chat updated.");
+
+  } catch (error) {
+    console.error("Error sending message:", error);
     throw error; // Rethrow the error
   }
 };

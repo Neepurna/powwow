@@ -228,6 +228,13 @@ const Chatlist = ({
       setCreatingChatId(item.otherParticipant.uid); 
       setError(null); 
       try {
+        // --- Add Logging Here ---
+        console.log(`[Chatlist] handleItemClick: Attempting chat creation.`);
+        console.log(`[Chatlist] currentUser.uid: ${currentUser.uid}`);
+        console.log(`[Chatlist] item.otherParticipant.uid: ${item.otherParticipant.uid}`);
+        console.log(`[Chatlist] item.otherParticipant.displayName: ${item.otherParticipant.displayName}`);
+        // --- End Logging ---
+
         console.log(`Attempting to create chat with ${item.otherParticipant.displayName}`);
         const chatId = await createChat(currentUser.uid, item.otherParticipant.uid); 
         

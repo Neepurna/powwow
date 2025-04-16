@@ -12,16 +12,65 @@
   overflow-y: auto; /* Allow scrolling for messages */
   padding: 15px;
   display: flex;
-  flex-direction: column-reverse; /* New messages appear at the bottom */
+  flex-direction: column; /* Messages stack vertically */
+  /* Removed column-reverse, will handle order in JS/rendering if needed, but auto-scroll helps */
 }
 
 .message-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  flex-grow: 1; /* Takes up space when empty */
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.9rem;
+  text-align: center;
+}
+.message-placeholder.error {
+  color: #ff5555;
+}
+
+/* --- Message Bubble Styles --- */
+.message-bubble {
+  max-width: 70%; /* Limit bubble width */
+  padding: 8px 12px;
+  border-radius: 18px; /* Rounded corners */
+  margin-bottom: 8px; /* Space between bubbles */
+  word-wrap: break-word; /* Break long words */
+  position: relative; /* For potential timestamp positioning */
+}
+
+.message-bubble .message-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Sent messages */
+.message-bubble.sent {
+  background-color: #99ff33; /* Accent color */
+  color: #121212; /* Dark text */
+  align-self: flex-end; /* Align to the right */
+  border-bottom-right-radius: 4px; /* Slightly different corner */
+}
+
+/* Received messages */
+.message-bubble.received {
+  background-color: #2a2a2a; /* Dark grey */
+  color: #e0e0e0; /* Light text */
+  align-self: flex-start; /* Align to the left */
+  border-bottom-left-radius: 4px; /* Slightly different corner */
+}
+
+/* Optional: Timestamp styling */
+.message-timestamp {
+  font-size: 0.7rem;
+  color: rgba(0, 0, 0, 0.5); /* Darker for sent */
+  display: block; /* Or inline-block */
+  text-align: right;
+  margin-top: 4px;
+}
+.message-bubble.received .message-timestamp {
+  color: rgba(255, 255, 255, 0.4); /* Lighter for received */
 }
 
 /* Input Area */
