@@ -1,0 +1,272 @@
+/* Landing Page Container */
+.landing-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Desktop Layout */
+@media (min-width: 1024px) {
+  .landing-container {
+    flex-direction: row;
+    justify-content: center; /* Center both panels */
+    padding: 40px;
+    gap: 40px; /* Consistent gap between panels */
+  }
+  
+  .welcome-panel {
+    width: 40%;
+    max-width: 550px;
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .app-panel {
+    width: 40%;
+    max-width: 380px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+/* Mobile Layout */
+@media (max-width: 1023px) {
+  .landing-container {
+    flex-direction: column;
+  }
+  
+  .welcome-panel {
+    margin-bottom: 30px; /* Space between panels on mobile */
+    width: 100%;
+    max-width: 500px;
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .app-panel {
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+/* Welcome Panel Styles */
+.welcome-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  opacity: 1; /* Always visible, no animation */
+  transform: translateX(0); /* No transform */
+}
+
+/* Remove fade-in animation */
+/* @keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+} */
+
+/* Logo Styles */
+.welcome-logo {
+  width: 180px;
+  height: auto;
+  margin-bottom: 30px;
+  animation: logoGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+  from {
+    filter: drop-shadow(0 0 5px rgba(153, 255, 51, 0.4));
+  }
+  to {
+    filter: drop-shadow(0 0 15px rgba(153, 255, 51, 0.7));
+  }
+}
+
+/* Typography */
+.welcome-title {
+  font-family: 'Bungee', cursive;
+  font-size: 2.5rem;
+  font-weight: 400;
+  margin-bottom: 20px;
+  color: #99ff33;
+  text-shadow: 0 0 10px rgba(153, 255, 51, 0.6), 0 0 20px rgba(153, 255, 51, 0.4);
+  letter-spacing: 1px;
+}
+
+.welcome-subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: white;
+  opacity: 0.9;
+}
+
+.welcome-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Features List */
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 30px 0;
+  width: 100%;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 12px;
+  animation: featureSlide 0.5s ease forwards;
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.feature-item:nth-child(1) { animation-delay: 0.3s; }
+.feature-item:nth-child(2) { animation-delay: 0.5s; }
+.feature-item:nth-child(3) { animation-delay: 0.7s; }
+.feature-item:nth-child(4) { animation-delay: 0.9s; }
+
+@keyframes featureSlide {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.feature-icon {
+  background: linear-gradient(135deg, #99ff33, #66cc00);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #121212;
+  flex-shrink: 0;
+}
+
+.feature-text {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Call to Action */
+.welcome-cta {
+  font-size: 1.1rem;
+  color: white;
+  margin-bottom: 10px;
+  opacity: 0;
+  animation: ctaFade 1s ease forwards 1.2s;
+}
+
+@keyframes ctaFade {
+  to { opacity: 0.9; }
+}
+
+/* App Panel Styles */
+.app-panel {
+  position: relative;
+}
+
+/* Mobile Frame - Removed animations */
+.mobile-frame {
+  width: 360px; /* Adjusted size */
+  height: 740px; /* Adjusted size */
+  background-color: #2a2a2a;
+  border-radius: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 
+              0 0 10px rgba(153, 255, 51, 0.2);
+  position: relative;
+  overflow: hidden; /* Ensure app content doesn't spill out */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(0); /* No rotation */
+}
+
+.mobile-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 20px;
+  background-color: #222;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+  z-index: 100;
+}
+
+/* The app content wrapper ensures proper fitting */
+.app-content-wrapper {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Media query for smaller screens */
+@media (max-height: 800px) {
+  .mobile-frame {
+    width: 340px; /* Smaller on lower height screens */
+    height: 700px;
+  }
+}
+
+/* Media query for really small screens */
+@media (max-width: 480px), (max-height: 700px) {
+  .mobile-frame {
+    width: 320px;
+    height: 650px;
+  }
+  
+  .welcome-panel {
+    margin-bottom: 20px;
+  }
+}
+
+/* For extremely small screens, just show the app */
+@media (max-width: 380px) {
+  .landing-container {
+    padding: 0;
+  }
+  
+  .welcome-panel {
+    display: none;
+  }
+  
+  .app-panel {
+    width: 100%;
+    margin: 0;
+  }
+  
+  .mobile-frame {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .mobile-frame::before {
+    display: none;
+  }
+}

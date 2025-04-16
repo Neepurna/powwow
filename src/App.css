@@ -1,6 +1,6 @@
 #root {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   margin: 0;
   padding: 0;
   text-align: center;
@@ -23,37 +23,16 @@
   display: none;
 }
 
-/* Mobile device outline effect */
+/* Mobile device outline effect - we don't need this anymore as it's handled by LandingPage */
 @media (min-width: 480px) {
   .app {
-    max-width: 400px; /* Keep max-width */
-    max-height: 800px; /* Keep max-height */
-    height: 800px; /* Keep explicit height for desktop frame */
-    margin: auto; /* Keep centering */
-    border-radius: 40px; /* Keep rounded corners for the container */
-    /* REMOVE border */
-    /* border: 12px solid #2a2a2a; */
-    position: relative; /* Keep relative */
-    overflow: hidden; /* Keep overflow hidden */
-    /* REMOVE box-shadow */
-    /* box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); */
-    transform-origin: center center; /* Keep scaling origin */
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    max-height: 800px;
+    margin: 0 auto;
+    border-radius: 30px; /* Inner rounded corners */
   }
-  
-  /* REMOVE ::before pseudo-element for the notch */
-  /* .app::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 150px;
-    height: 20px;
-    background-color: #2a2a2a;
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
-    z-index: 100;
-  } */
 }
 
 /* Add scrollbar styling for better aesthetics */
@@ -121,12 +100,8 @@ html, body, #root {
   overflow: hidden; /* Prevent body scroll */
 }
 
-/* Remove .app-container styles */
-/* .app-container { ... } */
-
+/* App header styles */
 .app-header {
-  /* Remove position: absolute */
-  /* position: absolute; */
   flex-shrink: 0; /* Prevent header from shrinking */
   height: 60px; /* Ensure height is defined */
   background-color: rgba(18, 18, 18, 0.8); /* Or your header background */
@@ -145,8 +120,6 @@ html, body, #root {
 }
 
 .app-footer {
-  /* Remove position: absolute */
-  /* position: absolute; */
   flex-shrink: 0; /* Prevent footer from shrinking */
   height: 60px; /* Ensure height is defined */
   background-color: rgba(18, 18, 18, 0.95); /* Or your footer background */
