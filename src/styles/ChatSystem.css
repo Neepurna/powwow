@@ -1,0 +1,104 @@
+.chat-system-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Fill the main content area */
+  background-color: #121212;
+  overflow: hidden; /* Prevent container scroll, message area will scroll */
+}
+
+/* Message Area */
+.message-area {
+  flex: 1; /* Take up remaining space */
+  overflow-y: auto; /* Allow scrolling for messages */
+  padding: 15px;
+  display: flex;
+  flex-direction: column-reverse; /* New messages appear at the bottom */
+}
+
+.message-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+/* Input Area */
+.input-area {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #1e1e1e; /* Slightly different background */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 55px; /* Ensure consistent height */
+}
+
+.input-area input {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 20px;
+  padding: 10px 15px;
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+  margin: 0 8px;
+  max-height: 80px; /* Limit input height if text wraps */
+  resize: none; /* Prevent manual resize if using textarea later */
+}
+
+.input-area input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.attach-button,
+.send-button {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.attach-button img,
+.send-button img {
+  width: 24px;
+  height: 24px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.attach-button:hover,
+.send-button:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.attach-button:hover img,
+.send-button:hover:not(:disabled) img {
+  opacity: 1;
+}
+
+.send-button {
+  /* Add specific styles if needed, e.g., color when active */
+}
+
+.send-button:disabled img {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.send-button:disabled:hover {
+  background-color: transparent; /* Don't change background when disabled */
+}
+
+/* Add styles for actual messages later */
+/*
+.message-bubble { ... }
+.message-bubble.sent { ... }
+.message-bubble.received { ... }
+*/

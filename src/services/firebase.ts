@@ -19,7 +19,11 @@ import {
   query,
   where,
   getDocs,
-  Timestamp // Import Timestamp
+  Timestamp, // Import Timestamp
+  addDoc, // Import addDoc
+  serverTimestamp, // Import serverTimestamp
+  arrayUnion, // Import arrayUnion
+  arrayRemove // Import arrayRemove if needed, but overwriting is simpler here
 } from "firebase/firestore";
 
 // Firebase configuration from environment variables
@@ -48,6 +52,13 @@ googleProvider.setCustomParameters({
 
 // Initialize Firestore
 const db = getFirestore(app);
+
+// Define ParticipantDetails interface (can be moved to a types file)
+interface ParticipantDetails {
+  uid: string;
+  displayName: string;
+  photoURL: string;
+}
 
 // Google Sign In
 export const signInWithGoogle = async (): Promise<User | null> => {
@@ -187,6 +198,9 @@ export const isUsernameTaken = async (username: string): Promise<boolean> => {
 
 // Find users by username (for search functionality)
 export const findUsersByUsername = async (usernameQuery: string): Promise<any[]> => {
+  const currentUser = getCurrentUser();
+  if (!currentUser) return []; // Don't search if not logged in
+
   try {
     // Basic validation
     if (!usernameQuery || /\s/.test(usernameQuery)) {
@@ -202,19 +216,101 @@ export const findUsersByUsername = async (usernameQuery: string): Promise<any[]>
     const users: any[] = [];
     
     querySnapshot.forEach((doc) => {
-      const userData = doc.data();
-      users.push({
-        uid: doc.id,
-        username: userData.username,
-        displayName: userData.displayName,
-        photoURL: userData.photoURL
-      });
+      // Exclude the current user from search results
+      if (doc.id !== currentUser.uid) {
+        const userData = doc.data();
+        users.push({
+          uid: doc.id,
+          username: userData.username,
+          displayName: userData.displayName,
+          photoURL: userData.photoURL
+        });
+      }
     });
     
     return users;
   } catch (error) {
     console.error("Error searching users:", error);
+    // Rethrow or return specific error state if needed
+    throw new Error("Failed to search users."); 
+  }
+};
+
+// Create a chat between two users
+export const createChat = async (currentUserId: string, otherUserId: string): Promise<string | null> => {
+  if (currentUserId === otherUserId) {
+    console.error("Cannot create chat with oneself.");
+    return null;
+  }
+
+  // Generate a unique chat ID based on sorted user IDs
+  const chatDocId = [currentUserId, otherUserId].sort().join('_');
+  const chatDocRef = doc(db, "chats", chatDocId);
+
+  try {
+    const chatDocSnap = await getDoc(chatDocRef);
+
+    if (chatDocSnap.exists()) {
+      // Chat already exists
+      console.log("Chat already exists:", chatDocId);
+      return chatDocId;
+    } else {
+      // Chat doesn't exist, create it
+      console.log("Creating new chat:", chatDocId);
+      await setDoc(chatDocRef, {
+        participantIds: [currentUserId, otherUserId],
+        createdAt: serverTimestamp(),
+        lastMessage: null,
+        lastMessageTimestamp: null,
+      });
+
+      // Optionally add participant subcollection docs (if needed for complex queries later)
+      // await setDoc(doc(db, "chats", chatDocId, "participants", currentUserId), { joinedAt: serverTimestamp() });
+      // await setDoc(doc(db, "chats", chatDocId, "participants", otherUserId), { joinedAt: serverTimestamp() });
+
+      console.log("New chat created successfully:", chatDocId);
+      return chatDocId;
+    }
+  } catch (error) {
+    console.error("Error creating or checking chat:", error);
+    throw new Error("Failed to create chat.");
+  }
+};
+
+// Get pending chats for a user
+export const getPendingChats = async (userId: string): Promise<ParticipantDetails[]> => {
+  if (!userId) return [];
+  try {
+    const userDocRef = doc(db, "users", userId);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      const data = userDocSnap.data();
+      // Return the pendingChats array, or an empty array if it doesn't exist
+      return data.pendingChats || []; 
+    }
     return [];
+  } catch (error) {
+    console.error("Error fetching pending chats:", error);
+    // Return empty array on error, or rethrow if needed
+    return []; 
+  }
+};
+
+// Update pending chats for a user (overwrites the existing array)
+export const updatePendingChats = async (userId: string, usersToAdd: ParticipantDetails[]): Promise<void> => {
+  if (!userId) return;
+  try {
+    const userDocRef = doc(db, "users", userId);
+    // Use updateDoc to only modify the pendingChats field
+    // This assumes the user document already exists (which it should if they are logged in)
+    await updateDoc(userDocRef, {
+      pendingChats: usersToAdd 
+    });
+    console.log(`Pending chats updated for user ${userId}`);
+  } catch (error) {
+    console.error("Error updating pending chats:", error);
+    // Handle error appropriately, maybe rethrow
+    throw new Error("Failed to update pending chats list.");
   }
 };
 
@@ -276,7 +372,8 @@ export const updateUserProfile = async (userId: string, profileData: any): Promi
       // Create new document
       await setDoc(userDocRef, {
         ...dataToUpdate,
-        createdAt: Timestamp.now() // Add createdAt only for new users
+        createdAt: Timestamp.now(), // Add createdAt only for new users
+        pendingChats: [] // Initialize pendingChats for new users
       });
       console.log("User profile created successfully.");
     }

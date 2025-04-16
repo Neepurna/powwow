@@ -57,6 +57,11 @@
   background-color: rgba(255, 255, 255, 0.03);
 }
 
+.chat-item.newly-added {
+  /* Optional: Add subtle visual difference for newly added items */
+  /* background-color: rgba(153, 255, 51, 0.05); */
+}
+
 .chat-avatar {
   width: 50px;
   height: 50px;
@@ -117,6 +122,11 @@
   max-width: 85%;
 }
 
+.chat-message.placeholder-message {
+  font-style: italic;
+  color: rgba(153, 255, 51, 0.8); /* Use accent color */
+}
+
 .unread-badge {
   background-color: #99ff33;
   color: #121212;
@@ -158,6 +168,13 @@
 
 .new-chat-button:active {
   transform: translateY(-1px);
+}
+
+.chatlist-error {
+  color: #ff5555;
+  text-align: center;
+  padding: 10px 16px;
+  font-size: 0.85rem;
 }
 
 @media (min-width: 480px) {
