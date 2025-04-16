@@ -6,6 +6,8 @@ import { User } from 'firebase/auth';
 import '../styles/Chatlist.css';
 import plusIcon from '../assets/icons/Plus.svg';
 import NoUsers from '../components/NoUsers'; 
+// Import close icon or use text 'X'
+// import closeIcon from '../assets/icons/Close.svg'; 
 
 // Define ParticipantDetails interface (can be moved to a types file later)
 interface ParticipantDetails {
@@ -195,6 +197,13 @@ const Chatlist = ({
       onChatSelect(item.otherParticipant, item.id);
     }
   };
+
+  // Handle clicking the delete button on a newly added item
+  const handleDeleteItem = (event: React.MouseEvent, userId: string) => {
+    event.stopPropagation(); // Prevent handleItemClick from firing
+    console.log(`Deleting pending user: ${userId}`);
+    onRemoveUserToAdd(userId); // Call the function passed from App.tsx
+  };
   
   const displayChats = combinedChats(); // Get the combined list
 
@@ -256,6 +265,19 @@ const Chatlist = ({
                   {/* <span className="unread-badge">1</span> */}
                 </div>
               </div>
+              {/* Add delete button for newly added items */}
+              {chat.isNewlyAdded && chat.otherParticipant && (
+                <button 
+                  className="delete-pending-btn" 
+                  onClick={(e) => handleDeleteItem(e, chat.otherParticipant!.uid)}
+                  aria-label={`Remove ${chat.otherParticipant.displayName}`}
+                >
+                  {/* Use an 'X' icon or text */}
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                    <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  </svg>
+                </button>
+              )}
             </div>
           ))}
            {/* Display general error if occurred during chat creation click */}
