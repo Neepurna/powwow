@@ -26,19 +26,22 @@
 /* Mobile device outline effect */
 @media (min-width: 480px) {
   .app {
-    max-width: 400px;
-    max-height: 800px; /* Apply max-height here */
-    height: 800px; /* Explicit height for desktop frame */
-    margin: auto; /* Center the frame */
-    border-radius: 40px;
-    border: 12px solid #2a2a2a;
-    position: relative;
-    overflow: hidden; /* Hide overflow */
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-    transform-origin: center center; /* Center the scaling */
+    max-width: 400px; /* Keep max-width */
+    max-height: 800px; /* Keep max-height */
+    height: 800px; /* Keep explicit height for desktop frame */
+    margin: auto; /* Keep centering */
+    border-radius: 40px; /* Keep rounded corners for the container */
+    /* REMOVE border */
+    /* border: 12px solid #2a2a2a; */
+    position: relative; /* Keep relative */
+    overflow: hidden; /* Keep overflow hidden */
+    /* REMOVE box-shadow */
+    /* box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3); */
+    transform-origin: center center; /* Keep scaling origin */
   }
   
-  .app::before {
+  /* REMOVE ::before pseudo-element for the notch */
+  /* .app::before {
     content: '';
     position: absolute;
     top: 0;
@@ -50,7 +53,7 @@
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     z-index: 100;
-  }
+  } */
 }
 
 /* Add scrollbar styling for better aesthetics */
