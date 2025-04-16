@@ -20,31 +20,38 @@
 .header-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center; /* Center the title */
   height: 100%;
   padding: 0 16px;
   max-width: 400px;
   margin: 0 auto;
+  position: relative; /* Needed for absolute positioning of children */
 }
 
 .header-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(90deg, #99ff33, #66cc00);
+  font-size: 1.4rem; /* Slightly smaller */
+  font-weight: 600; /* Adjust weight */
+  background: linear-gradient(90deg, #aaff55, #77dd00); /* Slightly brighter gradient */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-fill-color: transparent;
+  text-shadow: 0 0 8px rgba(153, 255, 51, 0.3); /* Subtle glow effect */
+  /* Remove margin if any */
+  margin: 0;
 }
 
 .header-actions {
+  position: absolute; /* Position absolutely */
+  right: 16px; /* Align to the right */
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.back-button,
-.header-action-button {
+.back-button {
+  position: absolute; /* Position absolutely */
+  left: 16px; /* Align to the left */
   background: transparent;
   color: #ffffff;
   border: none;
@@ -59,14 +66,12 @@
   padding: 0;
 }
 
-.back-button:hover,
-.header-action-button:hover {
+.back-button:hover {
   background-color: rgba(255, 255, 255, 0.1);
   transform: translateY(0);
 }
 
-.back-button:active,
-.header-action-button:active {
+.back-button:active {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
