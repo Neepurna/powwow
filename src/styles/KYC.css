@@ -52,7 +52,8 @@
   display: flex;
   gap: 15px;
   width: 100%;
-  align-items: flex-end; /* Align items to bottom for better label alignment */
+  /* Align items to the start to help with label alignment */
+  align-items: flex-start;
 }
 
 .form-group {
@@ -65,9 +66,10 @@
 
 /* Specific widths for row items */
 .form-group-photo {
-  width: 70px; /* Fixed width for photo */
+  width: 60px; /* Adjusted width for square */
   flex-shrink: 0;
   align-items: center; /* Center the photo upload */
+  padding-top: 23px; /* Add padding to align visually with name input label */
 }
 .form-group-name {
   flex: 1; /* Take remaining space */
@@ -85,7 +87,9 @@
   font-size: 0.85rem; /* Smaller label */
   color: rgba(255, 255, 255, 0.6); /* Lighter label */
   font-weight: 500;
-  margin-left: 5px; /* Slight indent */
+  /* margin-left: 5px; Remove slight indent */
+  text-align: left; /* Ensure labels align left */
+  padding-bottom: 2px; /* Add a little space below label */
 }
 
 .form-group input,
@@ -185,7 +189,8 @@
 .photo-upload-area {
   width: 60px;
   height: 60px;
-  border-radius: 50%;
+  /* border-radius: 50%; Remove circle */
+  border-radius: 8px; /* Make it a square with rounded corners */
   background-color: rgba(255, 255, 255, 0.08);
   border: 2px dashed rgba(255, 255, 255, 0.2);
   display: flex;
@@ -213,6 +218,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* border-radius: 50%; Remove circle if image itself was rounded */
 }
 .photo-upload-overlay {
   position: absolute;
@@ -275,7 +281,7 @@
 .signout-button-alt {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.4);
+  color: #ff5555; /* Make text red */
   font-size: 0.8rem;
   margin-top: 15px;
   cursor: pointer;
@@ -283,7 +289,7 @@
   padding: 5px;
 }
 .signout-button-alt:hover:not(:disabled) {
-  color: rgba(255, 255, 255, 0.6);
+  color: #ff8888; /* Lighter red on hover */
 }
 .signout-button-alt:disabled {
   opacity: 0.5;

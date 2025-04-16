@@ -107,20 +107,48 @@ const KYC = ({ user, onComplete }: KYCProps) => {
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      // If no file is selected (e.g., user cancels), reset the input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    // Clear previous general errors when a new image is selected
+    setError(null);
 
     // Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       setError('Image size must be less than 2MB');
+      setSelectedFile(null); // Clear selection if invalid
+      setPreviewImage(profile.photoURL || null); // Revert preview
+      if (fileInputRef.current) { // Clear the file input value
+        fileInputRef.current.value = '';
+      }
       return;
     }
 
     setSelectedFile(file);
+    console.log("Image selected:", file.name); // Log selection
 
     // Create a local preview
     const reader = new FileReader();
     reader.onload = () => {
       setPreviewImage(reader.result as string);
+      // Reset input value *after* successful read and preview set
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    };
+    reader.onerror = () => {
+        console.error("Error reading file for preview");
+        setError("Could not preview the selected image.");
+        setSelectedFile(null);
+        setPreviewImage(profile.photoURL || null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
     reader.readAsDataURL(file);
   };
@@ -128,22 +156,25 @@ const KYC = ({ user, onComplete }: KYCProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null); // Clear general error
-    setUsernameError(null); // Clear username error
+    setError(null); // Clear general error at the start
+    // Keep usernameError state as is, let validation logic handle it
 
     const finalUsername = profile.username.trim();
+    let submissionErrorOccurredBeforeUpload = false; // Flag to track if pre-upload error happened
 
     try {
+      console.log("handleSubmit started. selectedFile:", selectedFile?.name); // Log start
+
       // === Pre-submission Validation ===
       if (!profile.displayName || !finalUsername || !profile.dateOfBirth || !profile.gender) {
         throw new Error('Please fill in all required fields.');
       }
       if (/\s/.test(profile.username)) {
-         setUsernameError('Username cannot contain spaces.'); // Set specific error
+         setUsernameError('Username cannot contain spaces.');
          throw new Error('Username cannot contain spaces.');
       }
       if (!/^[a-zA-Z0-9_]+$/.test(finalUsername)) {
-         setUsernameError('Use letters, numbers, underscores only.'); // Set specific error
+         setUsernameError('Use letters, numbers, underscores only.');
         throw new Error('Username format is invalid.');
       }
 
@@ -185,51 +216,58 @@ const KYC = ({ user, onComplete }: KYCProps) => {
          } else {
             setError(specificErrorMsg); // Set general error for other check failures
          }
-         throw new Error(specificErrorMsg);
+         throw new Error(specificErrorMsg); // Re-throw to stop submission
       }
 
       // === Image Upload (if applicable) ===
-      let photoURL = profile.photoURL;
+      let photoURL = profile.photoURL; // Start with existing or default URL
       if (selectedFile) {
-        console.log("Uploading profile image...");
+        console.log("Attempting to upload selected image:", selectedFile.name); // Log before upload
         try {
           photoURL = await uploadImage(selectedFile);
           console.log('Image uploaded successfully:', photoURL);
-        } catch (uploadError) {
+          // Optionally clear selectedFile after successful upload if needed
+          // setSelectedFile(null);
+        } catch (uploadError: any) {
           console.error('Image upload failed:', uploadError);
-          // Let user know upload failed but profile might still save without new image
-          setError('Failed to upload profile image. Continuing without new image...');
-          // Don't re-throw, allow profile update to proceed with old/default URL
+          // Set a specific error message indicating upload failure but allowing profile save
+          setError(`Failed to upload profile image: ${uploadError.message || 'Unknown error'}. Profile will be saved without the new image.`);
+          // Do NOT re-throw; allow profile update to proceed with the old photoURL
         }
+      } else {
+         console.log("No new image selected for upload.");
       }
 
       // === Update Profile ===
-      console.log("Updating user profile in Firestore...");
+      console.log("Updating user profile in Firestore with photoURL:", photoURL);
       await updateUserProfile(user.uid, {
         displayName: profile.displayName.trim(),
         username: finalUsername,
         dateOfBirth: profile.dateOfBirth,
         gender: profile.gender,
-        photoURL, // Use potentially updated URL
+        photoURL, // Use the URL (either newly uploaded, existing, or default)
       });
       console.log("Profile update successful.");
 
-      onComplete();
+      onComplete(); // Navigate away only on full success
 
-    } catch (err) {
-      // Catch all errors from validation, checks, or update
-      // Set general error only if usernameError isn't already set for the same issue
-      if (!usernameError || !err.message?.includes('username')) {
-         setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
-      }
+    } catch (err: any) {
+      submissionErrorOccurredBeforeUpload = !error?.startsWith('Failed to upload profile image'); // Mark if error happened before/during upload attempt
       console.error('KYC submission error:', err);
+      // Set general error only if a specific username error isn't already set for the *same* issue
+      // Or if the error is not the image upload error we handled above
+      if ((!usernameError || !err.message?.includes('username')) && !error?.startsWith('Failed to upload profile image')) {
+         setError(err.message || 'An unexpected error occurred during submission.');
+      }
+      // If a validation/check error occurred and an image was selected, add a note.
+      if (selectedFile && submissionErrorOccurredBeforeUpload) {
+          setError(prev => `${prev || err.message || 'An error occurred.'} (Your selected image is still ready for the next attempt)`);
+      }
+
     } finally {
       setIsLoading(false);
+      console.log("handleSubmit finished. Error occurred before/during upload:", submissionErrorOccurredBeforeUpload); // Log end
     }
-  };
-
-  const selectImageClick = () => {
-    fileInputRef.current?.click();
   };
 
   const handleSignOut = async () => {
@@ -256,7 +294,7 @@ const KYC = ({ user, onComplete }: KYCProps) => {
           <div className="form-row">
             <div className="form-group form-group-photo">
               <label htmlFor="photo" className="photo-label">
-                <div className="photo-upload-area" onClick={selectImageClick}>
+                <div className="photo-upload-area">
                   {previewImage ? (
                     <img src={previewImage} alt="Preview" className="photo-preview-small" />
                   ) : (
