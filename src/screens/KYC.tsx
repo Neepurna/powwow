@@ -389,7 +389,7 @@ const KYC = ({ user, onComplete }: KYCProps) => {
             className="submit-button"
             disabled={isLoading || usernameChecking || !!usernameError || !!error} // Disable on general error too
           >
-            {isLoading ? 'Saving...' : 'Complete Profile'}
+            {isLoading ? 'Saving...' : 'lets Powwow!'}
           </button>
 
           <button
