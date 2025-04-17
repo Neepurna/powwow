@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { User } from 'firebase/auth';
+import { useState, useEffect } from 'react';
+import { User, getAuth, getRedirectResult } from 'firebase/auth';
 import { signInWithGoogle } from '../services/firebase';
 import '../styles/SignIn.css';
 
@@ -12,25 +12,43 @@ const SignIn = ({ onLoginSuccess, onLoginError }: SignInProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    setErrorMsg(null);
-    
-    try {
-      console.log("Attempting to sign in with Google...");
-      const user = await signInWithGoogle();
-      
-      if (user) {
-        console.log("Sign in successful, user:", user.uid);
-        onLoginSuccess(user);
-      } else {
-        console.error("Sign in failed - no user returned");
-        const error = new Error('Sign in failed - please try again');
+  // Add an effect to check for redirect result when the component mounts
+  useEffect(() => {
+    const checkRedirectResult = async () => {
+      try {
+        setIsLoading(true);
+        const auth = getAuth();
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          console.log('User signed in after redirect:', result.user.displayName || result.user.email);
+          if (onLoginSuccess) {
+            onLoginSuccess(result.user);
+          }
+        }
+      } catch (error) {
+        console.error('Redirect sign-in error:', error);
         setErrorMsg("Authentication failed. Please try again.");
-        if (onLoginError) {
+        if (onLoginError && error instanceof Error) {
           onLoginError(error);
         }
+      } finally {
+        setIsLoading(false);
       }
+    };
+
+    checkRedirectResult();
+  }, [onLoginSuccess, onLoginError]);
+
+  const handleGoogleSignIn = async () => {
+    setErrorMsg(null);
+    setIsLoading(true);
+    try {
+      const user = await signInWithGoogle();
+      if (user && onLoginSuccess) {
+        onLoginSuccess(user);
+      }
+      // If no user is returned, it means we're being redirected
+      // The redirect result will be handled by the useEffect
     } catch (error) {
       console.error('Google sign in error:', error);
       setErrorMsg("Authentication failed. Please try again.");

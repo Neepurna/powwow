@@ -50,32 +50,30 @@ function App() {
         setCurrentUser(user);
         setIsLoggedIn(true);
         try {
+          // Check if user needs KYC
           const profileComplete = await isUserProfileComplete(user.uid);
-          if (!profileComplete) {
-            setNeedsKYC(true);
-          } else {
-            setNeedsKYC(false);
-            // Fetch pending chats only if KYC is complete
-            const pending = await getPendingChats(user.uid);
-            setUsersToAdd(pending);
-            if (pending.length > 0) {
-              // Optionally clear pending chats from DB after loading
-              // await updatePendingChats(user.uid, []);
-            }
+          setNeedsKYC(!profileComplete);
+          
+          // If user has completed KYC, fetch any pending chats
+          if (profileComplete) {
+            const pendingUsers = await getPendingChats(user.uid);
+            setUsersToAdd(pendingUsers);
           }
+          
+          // Reset active chat if user changes
+          setActiveChatId(null);
+          setActiveChatPartner(null);
+          setActiveTab('chats'); // Reset to default tab
         } catch (error) {
-          console.error("Error checking profile completion:", error);
-          // Handle error appropriately, maybe show an error message
-          setNeedsKYC(false); // Assume profile is complete or let user proceed
+          console.error("Error in auth state observer:", error);
+          // Handle errors gracefully, possibly with user notification
         }
       } else {
+        // User is signed out
         setCurrentUser(null);
         setIsLoggedIn(false);
         setNeedsKYC(false);
-        setActiveChatId(null); // Clear active chat on logout
-        setActiveChatPartner(null);
-        setUsersToAdd([]); // Clear pending users on logout
-        setActiveTab('chats'); // Reset to default tab
+        setUsersToAdd([]);
       }
       setIsLoading(false); // End loading after checks
     });
