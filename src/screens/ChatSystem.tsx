@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, ChangeEvent } from 'react'; 
 import { User } from 'firebase/auth';
-// Import Timestamp, getMessagesListener, sendMessage, Message, ParticipantDetails, db
-import { Timestamp, getMessagesListener, sendMessage, Message, ParticipantDetails, db } from '../services/firebase'; 
-// Import doc and getDoc for fetching user profiles
-import { doc, getDoc } from 'firebase/firestore'; 
+import { getMessagesListener, sendMessage, Message, ParticipantDetails, db } from '../services/firebase'; 
+import { doc, getDoc } from 'firebase/firestore'; // Remove unused Timestamp import
 import { uploadImage } from '../services/cloudinary'; 
 import '../styles/ChatSystem.css';
-import defaultAvatar from '../assets/default-avatar.png'; 
+// Use type assertion to handle the import without a declaration file
+import defaultAvatarImport from '../assets/default-avatar.js';
+const defaultAvatar = defaultAvatarImport as string;
 
 // Interface for cached sender details
 interface SenderDetails {
@@ -27,39 +27,33 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const [messageError, setMessageError] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false); 
-  // State to cache sender details { uid: { displayName, photoURL } }
   const [senderDetailsCache, setSenderDetailsCache] = useState<{ [key: string]: SenderDetails }>({}); 
 
   const messagesEndRef = useRef<HTMLDivElement>(null); 
   const fileInputRef = useRef<HTMLInputElement>(null); 
 
-  // Determine if it's a group chat
   const isGroupChat = otherParticipant?.isGroup === true;
 
-  // --- Fetch Messages & Sender Details ---
   useEffect(() => {
      if (!chatId) return;
 
     setIsLoadingMessages(true);
     setMessageError(null);
     setMessages([]); 
-    // Clear cache when chat changes
     setSenderDetailsCache({}); 
 
     console.log(`Setting up message listener for chat: ${chatId}`);
 
     const unsubscribe = getMessagesListener(
       chatId,
-      async (fetchedMessages) => { // Make callback async
+      async (fetchedMessages) => {
         setMessages(fetchedMessages);
         setIsLoadingMessages(false);
 
-        // --- Fetch missing sender details for ALL received messages, not just group chats ---
         const uniqueSenderIds = Array.from(
           new Set(
             fetchedMessages
               .map(msg => msg.senderId)
-              // Filter out current user and already cached senders
               .filter(id => id !== currentUser.uid && !senderDetailsCache[id]) 
           )
         );
@@ -78,17 +72,14 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
                   photoURL: userData.photoURL || defaultAvatar
                 };
               } else {
-                // Cache a default if user not found
                 detailsToUpdate[senderId] = { displayName: 'User', photoURL: defaultAvatar };
               }
             } catch (error) {
               console.error(`Failed to fetch details for sender ${senderId}:`, error);
-              // Cache a default on error
               detailsToUpdate[senderId] = { displayName: 'User', photoURL: defaultAvatar };
             }
           }));
 
-          // Update cache state
           setSenderDetailsCache(prevCache => ({ ...prevCache, ...detailsToUpdate }));
         }
       },
@@ -105,12 +96,10 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
     };
   }, [chatId, currentUser.uid]); 
 
-  // --- Auto-scroll to bottom ---
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]); 
 
-  // --- Send Message ---
   const handleSendMessage = async (text?: string) => { 
     const textToSend = (text || messageText).trim(); 
     if (textToSend === '' || !currentUser) return;
@@ -138,12 +127,10 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
     }
   };
 
-  // --- Attach Image ---
   const handleAttachImage = () => {
     fileInputRef.current?.click();
   };
 
-  // --- Handle File Selection and Upload ---
   const handleFileSelected = async (event: ChangeEvent<HTMLInputElement>) => {
      const file = event.target.files?.[0];
     if (!file || !currentUser) {
@@ -186,7 +173,6 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
     }
   };
 
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageText(e.target.value);
     if (messageError) setMessageError(null); 
@@ -201,7 +187,6 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
 
   return (
     <div className="chat-system-container">
-      {/* Internal Chat Header */}
       <div className="chat-header-internal">
         <button onClick={onBack} className="chat-back-button" aria-label="Go back">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -209,7 +194,6 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
           </svg>
         </button>
         <div className="chat-title-internal">
-          {/* Display Avatar for Group/User */}
           <img
             src={otherParticipant.photoURL || defaultAvatar}
             alt={otherParticipant.displayName}
@@ -218,12 +202,10 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
           />
           <span className="chat-title-name">{otherParticipant.displayName}</span>
         </div>
-        <div className="chat-header-placeholder"></div> {/* Placeholder for balance */}
+        <div className="chat-header-placeholder"></div>
       </div>
 
-      {/* Message Area */}
       <div className="message-area">
-        {/* ... loading/error/placeholder states ... */}
         {isLoadingMessages ? (
           <div className="message-placeholder">Loading messages...</div>
         ) : messageError && messages.length === 0 ? ( 
@@ -238,9 +220,7 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
               const isSent = msg.senderId === currentUser.uid;
               const isImage = msg.text.startsWith('IMAGE::');
               const content = isImage ? msg.text.substring(7) : msg.text; 
-              // Show avatar for ALL received messages, not just in group chats
               const showAvatar = !isSent; 
-              // Get sender details from cache for all received messages
               const senderDetails = showAvatar ? senderDetailsCache[msg.senderId] : null; 
 
               return (
@@ -267,20 +247,17 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
                     ) : (
                       <p className="message-text">{content}</p>
                     )}
-                    {/* ... timestamp ... */}
                   </div>
                 </div>
               );
             })}
           </>
         )}
-        {/* ... upload indicator/error ... */}
         {isUploadingImage && <div className="message-placeholder">Sending image...</div>}
         {messageError && messages.length > 0 && <div className="message-placeholder error">{messageError}</div>} 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
       <div className="input-area">
         <input 
            type="file" 

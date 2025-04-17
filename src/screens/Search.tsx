@@ -1,20 +1,32 @@
 import { useState, useEffect } from 'react';
-// Import ParticipantDetails from firebase
-import { findUsersByUsername, getCurrentUser, ParticipantDetails } from '../services/firebase';
+import { findUsersByUsername, ParticipantDetails } from '../services/firebase';
 import '../styles/Search.css';
 import { User } from 'firebase/auth';
+import defaultAvatar from '../assets/default-avatar.js';
 
-// Update interface to match Firebase data structure
+// SVG icons
+const searchIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+</svg>`;
+
+const clearSearchSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+  <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+</svg>`;
+
+const addUserSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+</svg>`;
+
 interface UserSearchResult {
   uid: string;
   displayName: string;
   username: string;
-  photoURL: string | null; // <<< Allow null from firebase search results
+  photoURL: string | null;
 }
 
 interface SearchProps {
   currentUser: User | null;
-  onUserSelected: (user: ParticipantDetails) => void; // Uses imported type
+  onUserSelected: (user: ParticipantDetails) => void;
 }
 
 const Search = ({ currentUser, onUserSelected }: SearchProps) => {
@@ -68,7 +80,7 @@ const Search = ({ currentUser, onUserSelected }: SearchProps) => {
     const participantDetails: ParticipantDetails = {
       uid: user.uid,
       displayName: user.displayName,
-      photoURL: user.photoURL || null // <<< Ensure null is passed if photoURL is missing/empty
+      photoURL: user.photoURL || null
     };
 
     console.log(`User selected: ${user.displayName} (${user.uid})`);
@@ -77,16 +89,12 @@ const Search = ({ currentUser, onUserSelected }: SearchProps) => {
 
   return (
     <div className="search-screen">
-      {/* Add Screen Title */}
       <h2 className="screen-title">Discover</h2>
 
-      {/* Move Search Form Here */}
       <div className="search-form-container">
         <form onSubmit={handleSearchSubmit}>
           <div className="global-search-box">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-              <path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-            </svg>
+            <div dangerouslySetInnerHTML={{ __html: searchIconSvg }} />
             <input 
               type="text" 
               placeholder="Search by username..." 
@@ -99,9 +107,7 @@ const Search = ({ currentUser, onUserSelected }: SearchProps) => {
                 className="clear-search" 
                 onClick={() => setSearchQuery('')}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-                  <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                </svg>
+                <div dangerouslySetInnerHTML={{ __html: clearSearchSvg }} />
               </button>
             )}
           </div>
@@ -133,7 +139,7 @@ const Search = ({ currentUser, onUserSelected }: SearchProps) => {
                 <div key={user.uid} className="user-result-item">
                   <div className="user-avatar">
                     <img 
-                      src={user.photoURL || '/src/assets/default-avatar.png'} 
+                      src={user.photoURL || defaultAvatar} 
                       alt={user.displayName} 
                     />
                   </div>
@@ -145,9 +151,7 @@ const Search = ({ currentUser, onUserSelected }: SearchProps) => {
                     className="add-user-btn" 
                     onClick={() => handleAddUser(user)}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                      <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                    </svg>
+                    <div dangerouslySetInnerHTML={{ __html: addUserSvg }} />
                   </button>
                 </div>
               ))}

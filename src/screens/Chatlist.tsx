@@ -1,20 +1,24 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 // Import ParticipantDetails from firebase
-import { db, getCurrentUser, createChat, createGroupChat, ParticipantDetails } from '../services/firebase';
+import { db, createChat, createGroupChat, ParticipantDetails } from '../services/firebase';
+// Removed unused getCurrentUser import
 import { collection, query, where, onSnapshot, orderBy, Timestamp, doc, getDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import '../styles/Chatlist.css';
-import defaultAvatar from '../assets/default-avatar.js';
+// Use type assertion to handle the import without a declaration file
+import defaultAvatarImport from '../assets/default-avatar.js';
 import NoUsers from '../components/NoUsers';
 import GroupChat from './GroupChat'; // Import the new component
 
-// Replace external SVGs with inline SVG strings
+const defaultAvatar = defaultAvatarImport as string;
+
+// Define SVG content at the top
 const groupIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-  <path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.66-5.33-4-7-4z"/>
+  <path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-5.33-4-7-4z"/>
 </svg>`;
 
 // Base64 encoded default group avatar
-const defaultGroupAvatarBase64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMiIgZmlsbD0iIzMzMzMzMyIvPjxwYXRoIGZpbGw9IiM2NjY2NjYiIGQ9Ik0xMiAxNGMyLjIxIDAgNC0xLjc5IDQtNHMtMS43OS00LTQtNC00IDEuNzktNCA0IDEuNzkgNCA0IDR6bS02IDZ2LTJjMC0yLjY2IDUuMzMtNCA4LTQgMi42NyAwIDggMS4zNCA4IDR2MmgtMTZ6Ii8+PC9zdmc+';
+const defaultGroupAvatarBase64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMiIgZmlsbD0iIzMzMzMzMyIvPjxwYXRoIGZpbGw9IiM2NjY2NjYiIGQ9Ik0xMiAxNGMyLjIxIDAgNC0xLjc5IDQtNHMtMS43OS00LTQtNC00IDEuNzktNCA0IDEuNzkgNCA0IDR6bS02IDZ2LTJjMC0yLjY2IDUuMzMtNCA4LTQgMi42NyAwIDggMS4zNCA4IDR2Mkg2eiIvPjwvc3ZnPg==';
 
 // Update ChatItem to include groupPhotoURL
 interface ChatItem {

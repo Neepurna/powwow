@@ -1,12 +1,15 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { User } from 'firebase/auth';
-import { ParticipantDetails, createGroupChat } from '../services/firebase';
+import { ParticipantDetails } from '../services/firebase';
 import { uploadImage } from '../services/cloudinary';
-import defaultAvatar from '../assets/default-avatar.js';
+// Use type assertion to handle the import without a declaration file
+import defaultAvatarImport from '../assets/default-avatar.js';
 import '../styles/GroupChat.css';
 
+const defaultAvatar = defaultAvatarImport as string;
+
 // Base64 encoded default group avatar
-const defaultGroupAvatarBase64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMiIgZmlsbD0iIzMzMzMzMyIvPjxwYXRoIGZpbGw9IiM2NjY2NjYiIGQ9Ik0xMiAxNGMyLjIxIDAgNC0xLjc5IDQtNHMtMS43OS00LTQtNC00IDEuNzktNCA0IDEuNzkgNCA0IDR6bS02IDZ2LTJjMC0yLjY2IDUuMzMtNCA4LTQgMi42NyAwIDggMS4zNCA4IDR2MmgtMTZ6Ii8+PC9zdmc+';
+const defaultGroupAvatarBase64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMiIgZmlsbD0iIzMzMzMzMyIvPjxwYXRoIGZpbGw9IiM2NjY2NjYiIGQ9Ik0xMiAxNGMyLjIxIDAgNC0xLjc5IDQtNHMtMS43OS00LTQtNC00IDEuNzktNCA0IDEuNzkgNCA0IDR6bS02IDZ2LTJjMC0yLjY2IDUuMzMtNCA4LTQgMi42NyAwIDggMS4zNCA4IDR2Mkg2eiIvPjwvc3ZnPg==';
 
 interface GroupChatProps {
   currentUser: User;

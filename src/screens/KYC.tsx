@@ -1,9 +1,12 @@
-import { useState, useRef, ChangeEvent, useEffect } from 'react'; // Import useEffect
+import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { User } from 'firebase/auth';
-import { updateUserProfile, isUsernameTaken, signOut, db } from '../services/firebase'; // Import db
-import { doc, getDoc } from "firebase/firestore"; // Import firestore functions
+import { updateUserProfile, isUsernameTaken, signOut, db } from '../services/firebase';
+import { doc, getDoc } from "firebase/firestore";
 import { uploadImage } from '../services/cloudinary';
+import defaultAvatar from '../assets/default-avatar.js';
 import '../styles/KYC.css';
+
+
 
 interface KYCProps {
   user: User;
@@ -25,12 +28,12 @@ const KYC = ({ user, onComplete }: KYCProps) => {
     username: '',
     dateOfBirth: '',
     gender: '',
-    photoURL: user.photoURL || '',
+    photoURL: user.photoURL || defaultAvatar,
   });
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewImage, setPreviewImage] = useState<string | null>(user.photoURL || null);
+  const [previewImage, setPreviewImage] = useState<string | null>(user.photoURL || defaultAvatar);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [usernameChecking, setUsernameChecking] = useState(false);
   const [usernameError, setUsernameError] = useState<string | null>(null); // Specific state for username error
@@ -122,7 +125,7 @@ const KYC = ({ user, onComplete }: KYCProps) => {
     if (file.size > 2 * 1024 * 1024) {
       setError('Image size must be less than 2MB');
       setSelectedFile(null); // Clear selection if invalid
-      setPreviewImage(profile.photoURL || null); // Revert preview
+      setPreviewImage(profile.photoURL || defaultAvatar); // Revert preview
       if (fileInputRef.current) { // Clear the file input value
         fileInputRef.current.value = '';
       }
@@ -145,7 +148,7 @@ const KYC = ({ user, onComplete }: KYCProps) => {
         console.error("Error reading file for preview");
         setError("Could not preview the selected image.");
         setSelectedFile(null);
-        setPreviewImage(profile.photoURL || null);
+        setPreviewImage(profile.photoURL || defaultAvatar);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -301,7 +304,7 @@ const KYC = ({ user, onComplete }: KYCProps) => {
                   {previewImage ? (
                     <img src={previewImage} alt="Preview" className="photo-preview-small" />
                   ) : (
-                    <svg className="photo-placeholder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <img src={defaultAvatar} alt="Default Avatar" className="photo-preview-small" />
                   )}
                   <div className="photo-upload-overlay">Edit</div>
                 </div>

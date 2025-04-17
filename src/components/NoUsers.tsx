@@ -1,5 +1,5 @@
 import '../styles/NoUsers.css';
-import chatlistImage from '../assets/chatlist.jpg'; // Assuming the image is in assets
+import chatlistImage from '../assets/chatlist.jpg';
 
 interface NoUsersProps {
   onSearchClick: () => void; // Prop to handle button click
