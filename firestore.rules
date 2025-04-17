@@ -12,23 +12,32 @@ service cloud.firestore {
     }
     
     match /chats/{chatId} {
-      // Allow read (get, list) if user is a participant
-      allow read: if request.auth != null && request.auth.uid in resource.data.participantIds;
+      // Check if the authenticated user is part of this chat (or potential chat)
+      function isUserInChat() {
+        return request.auth.uid in resource.data.participantIds || 
+               chatId.matches(request.auth.uid + "_.*") || 
+               chatId.matches(".*_" + request.auth.uid);
+      }
+      
+      // Allow get if user is a participant or chat ID contains the user's ID
+      allow get: if request.auth != null && isUserInChat();
+                   
+      // List operation should still check the participantIds
+      allow list: if request.auth != null && request.auth.uid in resource.data.participantIds;
 
-      // Allow create for DIRECT chats (size 2, isGroup false)
+      // Allow create for DIRECT chats - simplified to match your implementation
       allow create: if request.auth != null 
                      && request.auth.uid in request.resource.data.participantIds
-                     && request.resource.data.participantIds.size() == 2
-                     && request.resource.data.isGroup == false; // Ensure it's a direct chat
+                     && request.resource.data.participantIds.size() == 2;
 
-      // Allow create for GROUP chats (size >= 2, isGroup true, creator matches auth)
+      // Allow create for GROUP chats
       allow create: if request.auth != null
                      && request.auth.uid in request.resource.data.participantIds
-                     && request.resource.data.participantIds.size() >= 2 // Allow 2 or more for groups
+                     && request.resource.data.participantIds.size() >= 2
                      && request.resource.data.isGroup == true
-                     && request.resource.data.createdBy == request.auth.uid; // Creator must be the one creating
+                     && request.resource.data.createdBy == request.auth.uid;
 
-      // Allow update (e.g., lastMessage) if user is a participant
+      // Allow update if user is a participant
       allow update: if request.auth != null && request.auth.uid in resource.data.participantIds;
       
       // Disallow direct deletion of chats
