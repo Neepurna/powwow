@@ -6,6 +6,7 @@ import { User } from 'firebase/auth';
 import '../styles/Chatlist.css';
 import groupIcon from '../assets/icons/Group.svg';
 import defaultGroupAvatar from '../assets/icons/GroupAvatar.svg';
+import defaultAvatar from '../assets/default-avatar.js';
 import NoUsers from '../components/NoUsers';
 import GroupChat from './GroupChat'; // Import the new component
 
@@ -467,8 +468,5 @@ const Chatlist = ({
     </div>
   );
 };
-
-// Import default user avatar
-import defaultAvatar from '../assets/default-avatar.png';
 
 export default Chatlist;

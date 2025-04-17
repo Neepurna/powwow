@@ -6,9 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'dist',
-    // Generate source maps for better debugging
     sourcemap: true,
-    // Optimize chunks and asset handling
     rollupOptions: {
       output: {
         manualChunks: {
@@ -18,6 +16,6 @@ export default defineConfig({
       }
     }
   },
-  // Ensure proper asset URL handling for production
-  base: '/'
+  base: '/',
+  assetsInclude: ['**/*.svg', '**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif']
 })
