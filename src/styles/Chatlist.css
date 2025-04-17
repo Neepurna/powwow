@@ -8,15 +8,6 @@
   background-color: #121212;
 }
 
-/* <<< Remove search-container styles >>> */
-/* .search-container { ... } */
-/* .search-box { ... } */
-/* .search-box svg { ... } */
-/* .search-box input { ... } */
-/* .search-box input::placeholder { ... } */
-/* .clear-search { ... } */
-/* .clear-search:hover { ... } */
-
 .chat-list {
   padding: 0 16px; /* Restore padding for the list itself */
   flex: 1; /* Allow list to grow */
@@ -158,49 +149,33 @@
 
 /* Container for action buttons */
 .action-buttons-container {
-  position: absolute; /* Position relative to chatlist-container */
-  top: 15px; /* Position from the top */
-  right: 20px;
+  position: absolute; /* Keep absolute positioning */
+  top: 10px; /* Adjust top position */
+  right: 16px; /* Align with right padding of chat list */
   display: flex;
   z-index: 990; 
 }
 
 /* Common styles for action buttons */
 .action-button {
-  width: 50px;
-  height: 50px;
-  border-radius: 28px; /* More rounded */
+  width: 40px; /* Slightly smaller for better positioning */
+  height: 40px;
+  border-radius: 20px; /* Adjust radius to match the new size */
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Remove box-shadow from common style, apply individually if needed */
-  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); */
   transition: transform 0.2s ease, filter 0.3s ease; /* Add filter transition */
   transform-origin: center center; /* Ensure proper scaling */
-  /* Add base filter for smooth transition */
   filter: drop-shadow(0 0 0 rgba(153, 255, 51, 0)); 
-  /* Remove background and border from common style */
   background: none;
   border: none;
   padding: 0; /* Remove padding if any */
   cursor: pointer;
 }
 
-/* Remove general img styling if not needed */
-/* .action-button img { ... } */
-
-/* Remove general svg styling */
-/* .action-button svg { ... } */
-
-/* Remove general hover effect changing transform/shadow */
-/* .action-button:hover { ... } */
-
-/* Remove general active effect */
-/* .action-button:active { ... } */
-
 /* Specific styles for New Chat button (Now just the Group Icon) */
 .new-chat-button {
-  /* Override any previous background/border */
+  position: static; /* Override any fixed positioning */
   background: none !important; 
   border: none !important;
   box-shadow: none !important; /* Remove shadow from button itself */
@@ -211,51 +186,23 @@
 .new-chat-button img {
   width: 48px; /* Increased from 36px to make it bigger */
   height: 48px; /* Increased from 36px to make it bigger */
-  /* Make icon white by default */
   filter: invert(100%) brightness(1.5); 
   transition: all 0.3s ease; /* Simplified transition */
 }
 
 .new-chat-button:hover img {
-  /* Clean, simple color transformation without sepia or excessive saturation */
-  filter: invert(70%) brightness(1.2) /* Basic white-to-green transformation */
-         drop-shadow(0 0 8px rgba(153, 255, 51, 0.6)); /* Add simple glow effect */
+  filter: invert(70%) brightness(1.2) drop-shadow(0 0 8px rgba(153, 255, 51, 0.6)); /* Add simple glow effect */
   transform: scale(1.15); /* Slightly larger scale effect for more emphasis */
 }
 
 .new-chat-button:active img {
   transform: scale(1.08); /* Slightly smaller scale on click */
-  /* Similar clean filter for active state */
-  filter: invert(70%) brightness(1.2)
-         drop-shadow(0 0 5px rgba(153, 255, 51, 0.5)); /* Slightly reduced glow when clicked */
-}
-
-/* Specific styles for Create Group button (Now has Plus Icon, opens modal) */
-.create-group-button {
-  /* Style previously for new-chat-button */
-  background: linear-gradient(135deg, #99ff33, #66cc00);
-  /* Set the color for the inline SVG */
-  color: #121212; /* Dark color for the plus icon */
-}
-
-/* Remove the filter rule for the img */
-/* .create-group-button img {
-   filter: brightness(0) invert(0.1); 
-} */
-
-/* Ensure SVG inherits the color */
-.create-group-button svg {
-  fill: currentColor; 
-}
-
-.create-group-button:hover {
-  /* Keep hover effect consistent or adjust as needed */
-  /* background: #444; */ /* Remove if using gradient */
+  filter: invert(70%) brightness(1.2) drop-shadow(0 0 5px rgba(153, 255, 51, 0.5)); /* Slightly reduced glow when clicked */
 }
 
 .new-chat-button .group-icon {
-  width: 48px;
-  height: 48px;
+  width: 36px; /* Reduce size to fit better in header */
+  height: 36px;
   filter: invert(100%) brightness(1.5);
   transition: all 0.3s ease;
 }
@@ -310,23 +257,20 @@
 
 @media (min-width: 480px) {
   .new-chat-button {
-    position: fixed; /* Keep it fixed instead of absolute */
-    right: calc(50% - 168px); /* Center + offset: half app width (376px/2) minus right margin (20px) */
-    bottom: 75px;
+    position: static; /* Override fixed positioning */
+    right: auto;
+    bottom: auto;
     transform: none;
   }
 }
 
 @media (max-width: 480px) {
   .new-chat-button {
-    position: fixed;
-    right: 20px;
-    bottom: 75px;
+    position: static; /* Override fixed positioning */
+    right: auto;
+    bottom: auto;
   }
 }
-
-/* Remove media query adjustments related to search container */
-/* @media (max-width: 768px) { ... } */
 
 /* Placeholder styles (used for no results/error) */
 .search-placeholder {
