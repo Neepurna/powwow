@@ -4,11 +4,17 @@ import { db, getCurrentUser, createChat, createGroupChat, ParticipantDetails } f
 import { collection, query, where, onSnapshot, orderBy, Timestamp, doc, getDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 import '../styles/Chatlist.css';
-import groupIcon from '../assets/icons/Group.svg';
-import defaultGroupAvatar from '../assets/icons/GroupAvatar.svg';
 import defaultAvatar from '../assets/default-avatar.js';
 import NoUsers from '../components/NoUsers';
 import GroupChat from './GroupChat'; // Import the new component
+
+// Replace external SVGs with inline SVG strings
+const groupIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.66-5.33-4-7-4z"/>
+</svg>`;
+
+// Base64 encoded default group avatar
+const defaultGroupAvatarBase64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMiIgZmlsbD0iIzMzMzMzMyIvPjxwYXRoIGZpbGw9IiM2NjY2NjYiIGQ9Ik0xMiAxNGMyLjIxIDAgNC0xLjc5IDQtNHMtMS43OS00LTQtNC00IDEuNzktNCA0IDEuNzkgNCA0IDR6bS02IDZ2LTJjMC0yLjY2IDUuMzMtNCA4LTQgMi42NyAwIDggMS4zNCA4IDR2MmgtMTZ6Ii8+PC9zdmc+';
 
 // Update ChatItem to include groupPhotoURL
 interface ChatItem {
@@ -49,12 +55,9 @@ const Chatlist = ({
 
   // Fetch chats in real-time
   useEffect(() => {
-    // ... existing setup ...
     if (!currentUser) {
-      // ... handle no user ...
       return;
     }
-    // ... set loading, clear error ...
 
     const chatsRef = collection(db, "chats");
     const q = query(
@@ -64,18 +67,15 @@ const Chatlist = ({
     );
 
     const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-      console.log(`[Chatlist] Listener triggered: ${querySnapshot.size} chats.`);
       const fetchedChats: ChatItem[] = [];
 
       const results = await Promise.allSettled(querySnapshot.docs.map(async (docSnapshot) => {
-        // <<< Explicitly type chatData to include groupPhotoURL >>>
         const chatData = docSnapshot.data() as Omit<ChatItem, 'id' | 'otherParticipant' | 'isNewlyAdded'> & { groupPhotoURL?: string | null };
         const chatId = docSnapshot.id;
 
         let chatItem: ChatItem | null = null;
 
         if (chatData.isGroup) {
-          // --- Handle Group Chat ---
           chatItem = {
             id: chatId,
             participantIds: chatData.participantIds,
@@ -84,11 +84,10 @@ const Chatlist = ({
             isGroup: true,
             groupName: chatData.groupName || 'Group Chat',
             createdBy: chatData.createdBy,
-            groupPhotoURL: chatData.groupPhotoURL || null, // <<< Get groupPhotoURL
+            groupPhotoURL: chatData.groupPhotoURL || null,
             isNewlyAdded: false,
           };
         } else if (chatData.participantIds.length === 2) {
-          // --- Handle Direct Chat ---
           const otherUserId = chatData.participantIds.find(id => id !== currentUser?.uid);
           if (otherUserId) {
             try {
@@ -99,7 +98,6 @@ const Chatlist = ({
                 const otherParticipantData: ParticipantDetails = {
                   uid: otherUserId,
                   displayName: userData.displayName || 'Unknown User',
-                  // <<< Ensure photoURL is string | null >>>
                   photoURL: userData.photoURL || null
                 };
                 chatItem = {
@@ -110,27 +108,20 @@ const Chatlist = ({
                   otherParticipant: otherParticipantData,
                   isNewlyAdded: false,
                   isGroup: false,
-                  groupPhotoURL: null, // Explicitly null for direct chats
+                  groupPhotoURL: null,
                 };
-              } else {
-                console.warn(`User profile not found for ID: ${otherUserId} in chat ${chatId}`);
               }
             } catch (userFetchError) {
               console.error(`Failed to fetch details for user ${otherUserId} in chat ${chatId}:`, userFetchError);
             }
           }
-        } else {
-          console.warn(`Skipping chat ${chatId}: Not a group and participant count is not 2.`);
         }
         return chatItem;
       }));
 
-      // ... existing result processing and sorting ...
       results.forEach(result => {
         if (result.status === 'fulfilled' && result.value) {
           fetchedChats.push(result.value);
-        } else if (result.status === 'rejected') {
-          console.error("Error processing a chat document:", result.reason);
         }
       });
 
@@ -143,20 +134,14 @@ const Chatlist = ({
       setChats(fetchedChats);
       setIsLoading(false);
       setError(null);
-    }, (err) => {
-      // ... existing error handling ...
     });
 
     return () => {
-      console.log("Cleaning up chat listener.");
       unsubscribe();
     };
   }, [currentUser]);
 
-  // --- useEffect to fetch details for addedUsers ---
   useEffect(() => {
-    // ... existing implementation ...
-    // Ensure photoURL is handled as string | null
     if (!addedUsers || addedUsers.length === 0) {
       setAddedUsersDetails({});
       return;
@@ -173,15 +158,13 @@ const Chatlist = ({
             map[user.uid] = {
               uid: user.uid,
               displayName: userData.displayName || user.displayName || 'User',
-              photoURL: userData.photoURL || user.photoURL || null // <<< Ensure null fallback
+              photoURL: userData.photoURL || user.photoURL || null
             };
           } else {
-            console.warn(`User profile not found for added user ID: ${user.uid}`);
-            map[user.uid] = { ...user, photoURL: user.photoURL || null }; // <<< Ensure null fallback
+            map[user.uid] = { ...user, photoURL: user.photoURL || null };
           }
         } catch (fetchError) {
-          console.error(`Failed to fetch details for added user ${user.uid}:`, fetchError);
-          map[user.uid] = { ...user, photoURL: user.photoURL || null }; // <<< Ensure null fallback
+          map[user.uid] = { ...user, photoURL: user.photoURL || null };
         }
         return map;
       }, Promise.resolve<{ [key: string]: ParticipantDetails }>({}));
@@ -193,9 +176,7 @@ const Chatlist = ({
 
   }, [addedUsers]);
 
-  // Combine Firestore chats and newly added users for display
   const combinedChats = (): ChatItem[] => {
-    // ... existing logic ...
     const existingChatUserIds = new Set(chats.filter(c => !c.isGroup).map(chat => chat.otherParticipant?.uid));
     const uniqueAddedUsers = addedUsers.filter(user => !existingChatUserIds.has(user.uid));
 
@@ -209,21 +190,18 @@ const Chatlist = ({
         otherParticipant: {
           uid: details.uid,
           displayName: details.displayName,
-          photoURL: details.photoURL // Already string | null
+          photoURL: details.photoURL
         },
         isNewlyAdded: true,
         isGroup: false,
-        groupPhotoURL: null, // Explicitly null
+        groupPhotoURL: null,
       };
     });
 
     return [...addedChatItems, ...chats];
   };
 
-  // --- Prepare list of users for Group Chat creation ---
   const availableUsersForGroup = useMemo(() => {
-    // ... existing implementation ...
-    // Ensure photoURL is handled as string | null
     const usersMap = new Map<string, ParticipantDetails>();
 
     chats.forEach(chat => {
@@ -235,7 +213,6 @@ const Chatlist = ({
     addedUsers.forEach(pendingUser => {
       if (!usersMap.has(pendingUser.uid)) {
         const details = addedUsersDetails[pendingUser.uid] || pendingUser;
-        // Ensure photoURL is null if missing
         usersMap.set(details.uid, { ...details, photoURL: details.photoURL || null });
       }
     });
@@ -243,139 +220,100 @@ const Chatlist = ({
     return Array.from(usersMap.values());
   }, [chats, addedUsers, addedUsersDetails]);
 
-  // Helper to format timestamp
   const formatTimestamp = (timestamp: Timestamp | null): string => {
-    // ... existing implementation ...
     if (!timestamp) return '';
     const date = timestamp.toDate();
     return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   };
 
-  // Handle clicking on a chat item
   const handleItemClick = async (item: ChatItem) => {
-    // ... existing setup ...
     if (!currentUser) return;
 
     if (item.isGroup) {
-      // --- Handle Group Chat Click ---
       const groupDetails: ParticipantDetails = {
         uid: item.id,
         displayName: item.groupName || 'Group Chat',
-        // <<< Use groupPhotoURL from ChatItem >>>
         photoURL: item.groupPhotoURL || null,
         isGroup: true,
       };
-      console.log(`[Chatlist] handleItemClick (Group): Navigating to group chat ${item.id}`);
       onChatSelect(groupDetails, item.id);
 
     } else if (item.isNewlyAdded && item.otherParticipant) {
-      // --- Handle Newly Added User Click ---
       setCreatingChatId(item.otherParticipant.uid);
       setError(null);
       try {
-        console.log(`Attempting to create chat with ${item.otherParticipant.displayName}`);
         const chatId = await createChat(currentUser.uid, item.otherParticipant.uid);
 
         if (chatId) {
-          console.log("Chat created/found successfully:", chatId);
-          // Pass user details and the new/existing chatId
           onChatSelect(item.otherParticipant, chatId);
         } else {
           setError(`Could not start chat with ${item.otherParticipant.displayName}.`);
         }
       } catch (error: any) {
-        console.error("Error creating chat on click:", error);
         setError(error.message || `Failed to start chat with ${item.otherParticipant.displayName}.`);
       } finally {
         setCreatingChatId(null);
       }
     } else if (item.otherParticipant) {
-      // --- Handle Existing Direct Chat Click ---
-      console.log(`[Chatlist] handleItemClick (Existing Direct): Navigating to chat ${item.id}`);
       onChatSelect(item.otherParticipant, item.id);
-    } else {
-      console.error("Cannot select chat: Invalid item data.", item);
     }
   };
 
-  // Handle clicking the delete button on a newly added item
   const handleDeleteItem = (event: React.MouseEvent, userId: string) => {
-    // ... existing implementation ...
     event.stopPropagation();
-    console.log(`Deleting pending user: ${userId}`);
     onRemoveUserToAdd(userId);
   };
 
-  // --- Group Chat Handlers ---
   const handleCreateGroupClick = () => {
     setIsCreatingGroup(true);
   };
 
   const handleCancelGroupCreation = () => {
     setIsCreatingGroup(false);
-    setError(null); // Clear any errors from the modal
+    setError(null);
   };
 
-  // --- UPDATED: handleGroupCreated (now receives groupPhotoURL) ---
   const handleGroupCreated = async (groupName: string, selectedUserIds: string[], groupPhotoURL?: string | null) => {
     if (!currentUser) {
-      console.error("Cannot create group: No current user.");
-      setError("Authentication error. Please try again."); // Show error in Chatlist
+      setError("Authentication error. Please try again.");
       setIsCreatingGroup(false);
       return;
     }
-    console.log(`Attempting to create group "${groupName}" with users:`, selectedUserIds);
 
     try {
-      // Call the actual service function
       const newGroupId = await createGroupChat(currentUser.uid, groupName, selectedUserIds, groupPhotoURL);
       if (newGroupId) {
-        console.log("Group created successfully with ID:", newGroupId);
-        // Close modal - success! Chat will appear via listener.
         setIsCreatingGroup(false);
-        // Optionally navigate immediately (or let user click the new chat item)
-        // const groupDetails: ParticipantDetails = { uid: newGroupId, displayName: groupName, photoURL: groupPhotoURL || null, isGroup: true };
-        // onChatSelect(groupDetails, newGroupId);
       } else {
-        console.error("Group creation failed, function returned null.");
-        setError("Failed to create group. Please try again."); // Show error in Chatlist
-        // Keep modal open if creation failed in service
+        setError("Failed to create group. Please try again.");
       }
     } catch (error: any) {
-      console.error("Error during group creation:", error);
-      setError(error.message || "Failed to create group."); // Show error in Chatlist
-      // Keep modal open on error
+      setError(error.message || "Failed to create group.");
     }
-    // Removed finally block that closed modal, handle based on success/failure now
   };
 
   const displayChats = useMemo(() => {
     const combined = combinedChats();
 
-    // Sort combined list
     combined.sort((a, b) => {
       const timeA = a.lastMessageTimestamp?.toMillis() ?? 0;
       const timeB = b.lastMessageTimestamp?.toMillis() ?? 0;
       return timeB - timeA;
     });
 
-    return combined; // Return the combined and sorted list
+    return combined;
 
-  }, [addedUsers, chats, currentUser]); // <<< Remove searchQuery dependency
+  }, [addedUsers, chats, currentUser]);
 
   return (
     <div className="chatlist-container" ref={containerRef}>
-      {/* Add Screen Title */}
       <h2 className="screen-title">Chats</h2>
 
-      {/* Conditional Rendering */}
       {isLoading && displayChats.length === 0 ? (
-        // ... loading indicator ...
         <div className="loading-screen" style={{ height: 'calc(100% - 120px)'}}>
           <div className="loading-spinner"></div>
         </div>
       ) : error && displayChats.length === 0 ? (
-        // ... error message ...
         <div className="search-placeholder" style={{ height: 'calc(100% - 120px)'}}>
           <p className="placeholder-text" style={{ color: '#ff5555' }}>{error}</p>
         </div>
@@ -384,13 +322,10 @@ const Chatlist = ({
       ) : (
         <div className="chat-list">
           {displayChats.map((chat) => {
-            // <<< Update display name and photo URL logic >>>
             const displayName = chat.isGroup ? chat.groupName : chat.otherParticipant?.displayName;
-            // Use groupPhotoURL if it's a group and exists, otherwise default group avatar
-            // Use otherParticipant photoURL if direct chat, otherwise default user avatar
             const photoURL = chat.isGroup
-              ? (chat.groupPhotoURL || defaultGroupAvatar)
-              : (chat.otherParticipant?.photoURL || defaultAvatar); // Use default user avatar here
+              ? (chat.groupPhotoURL || defaultGroupAvatarBase64)
+              : (chat.otherParticipant?.photoURL || defaultAvatar);
             const altText = chat.isGroup ? (chat.groupName || 'Group') : (chat.otherParticipant?.displayName || 'User');
 
             return (
@@ -401,11 +336,9 @@ const Chatlist = ({
               >
                 <div className="chat-avatar">
                   <img
-                    // <<< Use the determined photoURL >>>
                     src={photoURL}
                     alt={altText}
-                    // Add error handler for images
-                    onError={(e) => (e.currentTarget.src = chat.isGroup ? defaultGroupAvatar : defaultAvatar)}
+                    onError={(e) => (e.currentTarget.src = chat.isGroup ? defaultGroupAvatarBase64 : defaultAvatar)}
                   />
                 </div>
                 <div className="chat-info">
@@ -431,7 +364,6 @@ const Chatlist = ({
                     onClick={(e) => handleDeleteItem(e, chat.otherParticipant!.uid)}
                     aria-label={`Remove ${chat.otherParticipant.displayName}`}
                   >
-                    {/* ... delete icon svg ... */}
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
                       <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                     </svg>
@@ -440,28 +372,25 @@ const Chatlist = ({
               </div>
             );
           })}
-          {/* Display general error if occurred during chat creation click or group creation */}
           {error && !isLoading && <p className="chatlist-error">{error}</p>}
         </div>
       )}
 
-      {/* Action Buttons Container */}
       <div className="action-buttons-container">
         <button
           className="action-button new-chat-button"
           onClick={handleCreateGroupClick}
           title="Create Group"
         >
-          <img src={groupIcon} alt="Create Group" className="group-icon" />
+          <div dangerouslySetInnerHTML={{ __html: groupIconSvg }} className="group-icon" />
         </button>
       </div>
 
-      {/* Render Group Chat Modal */}
       {isCreatingGroup && currentUser && (
         <GroupChat
           currentUser={currentUser}
           availableUsers={availableUsersForGroup}
-          onCreateGroup={handleGroupCreated} // Pass the async handler
+          onCreateGroup={handleGroupCreated}
           onCancel={handleCancelGroupCreation}
         />
       )}

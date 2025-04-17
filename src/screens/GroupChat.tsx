@@ -1,9 +1,12 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { User } from 'firebase/auth';
 import { ParticipantDetails, createGroupChat } from '../services/firebase';
-import { uploadImage } from '../services/cloudinary'; // Assuming you have this service
-import defaultGroupAvatar from '../assets/icons/GroupAvatar.svg'; // Default group icon
-import '../styles/GroupChat.css'; // Create this CSS file
+import { uploadImage } from '../services/cloudinary';
+import defaultAvatar from '../assets/default-avatar.js';
+import '../styles/GroupChat.css';
+
+// Base64 encoded default group avatar
+const defaultGroupAvatarBase64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMiIgZmlsbD0iIzMzMzMzMyIvPjxwYXRoIGZpbGw9IiM2NjY2NjYiIGQ9Ik0xMiAxNGMyLjIxIDAgNC0xLjc5IDQtNHMtMS43OS00LTQtNC00IDEuNzktNCA0IDEuNzkgNCA0IDR6bS02IDZ2LTJjMC0yLjY2IDUuMzMtNCA4LTQgMi42NyAwIDggMS4zNCA4IDR2MmgtMTZ6Ii8+PC9zdmc+';
 
 interface GroupChatProps {
   currentUser: User;
@@ -128,7 +131,7 @@ const GroupChat = ({ currentUser, availableUsers, onCreateGroup, onCancel }: Gro
             disabled={isLoading}
           />
           <button className="group-avatar-button" onClick={handleAvatarClick} disabled={isLoading} title="Choose group avatar">
-            <img src={avatarPreview || defaultGroupAvatar} alt="Group Avatar" className="group-avatar-preview" />
+            <img src={avatarPreview || defaultGroupAvatarBase64} alt="Group Avatar" className="group-avatar-preview" />
             <div className="group-avatar-overlay">
               <span>📷</span> {/* Camera Icon */}
             </div>

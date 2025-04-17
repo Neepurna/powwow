@@ -255,6 +255,28 @@
   /* background: #444; */ /* Remove if using gradient */
 }
 
+.new-chat-button .group-icon {
+  width: 48px;
+  height: 48px;
+  filter: invert(100%) brightness(1.5);
+  transition: all 0.3s ease;
+}
+
+.new-chat-button .group-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.new-chat-button:hover .group-icon {
+  filter: invert(70%) brightness(1.2) drop-shadow(0 0 8px rgba(153, 255, 51, 0.6));
+  transform: scale(1.15);
+}
+
+.new-chat-button:active .group-icon {
+  transform: scale(1.08);
+  filter: invert(70%) brightness(1.2) drop-shadow(0 0 5px rgba(153, 255, 51, 0.5));
+}
+
 .chatlist-error {
   color: #ff5555;
   text-align: center;
