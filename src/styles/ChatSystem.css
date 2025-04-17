@@ -285,54 +285,52 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease; /* Add color transition */
+  color: rgba(255, 255, 255, 0.6); /* Default icon color */
 }
 
-.attach-button img,
-.send-button img {
+/* Style the SVG container */
+.attach-button div,
+.send-button div {
+  display: flex; /* Ensure SVG aligns correctly */
+  align-items: center;
+  justify-content: center;
+}
+
+.attach-button svg,
+.send-button svg {
   width: 24px;
   height: 24px;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
+  transition: color 0.2s ease; /* Smooth color change */
 }
 
-.attach-button:hover,
-.send-button:hover:not(:disabled) {
+.attach-button:hover:not(:disabled) {
   background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9); /* Slightly brighter icon on hover */
 }
 
-.attach-button:hover img,
-.send-button:hover:not(:disabled) img {
-  opacity: 1;
+.send-button:hover:not(:disabled) {
+  background-color: rgba(153, 255, 51, 0.15); /* Greenish background on hover */
+  color: #99ff33; /* Green icon on hover */
 }
 
 .send-button {
-  /* Add specific styles if needed, e.g., color when active */
+  color: rgba(153, 255, 51, 0.5); /* Dim green when disabled or no text */
 }
 
-.send-button:disabled img {
-  opacity: 0.3;
-  cursor: not-allowed;
+.send-button:not(:disabled) {
+  color: #99ff33; /* Bright green when enabled */
 }
-
-.send-button:disabled:hover {
-  background-color: transparent; /* Don't change background when disabled */
-}
-
-/* Add styles for actual messages later */
-/*
-.message-bubble { ... }
-.message-bubble.sent { ... }
-.message-bubble.received { ... }
-*/
 
 /* Style attach/send buttons when disabled */
 .attach-button:disabled,
 .send-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.3); /* More muted color when disabled */
 }
 .attach-button:disabled:hover,
 .send-button:disabled:hover {
   background-color: transparent;
+  color: rgba(255, 255, 255, 0.3); /* Ensure color doesn't change on hover when disabled */
 }

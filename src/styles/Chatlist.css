@@ -1,11 +1,11 @@
 .chatlist-container {
-  height: 100%; /* Take full height of parent (.app-content) */
-  /* padding: 0; Remove padding */ /* Padding handled by title/list */
-  overflow: hidden; /* Change from auto to hidden, list will scroll */
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure container takes full height */
+  overflow: hidden; /* Prevent container itself from scrolling */
+  position: relative; /* Add relative positioning globally */
+  box-sizing: border-box; /* Include padding/border in height */
   background-color: #121212;
-  display: flex; /* Use flexbox */
-  flex-direction: column; /* Stack title and list */
 }
 
 /* <<< Remove search-container styles >>> */
@@ -159,11 +159,9 @@
 /* Container for action buttons */
 .action-buttons-container {
   position: absolute; /* Position relative to chatlist-container */
-  bottom: 15px; /* Space from bottom edge */
+  top: 15px; /* Position from the top */
   right: 20px;
   display: flex;
-  flex-direction: column; 
-  gap: 15px; 
   z-index: 990; 
 }
 
@@ -316,18 +314,6 @@
     right: calc(50% - 168px); /* Center + offset: half app width (376px/2) minus right margin (20px) */
     bottom: 75px;
     transform: none;
-  }
-  
-  /* Container needs to be positioned relative for absolute positioning of button */
-  .chatlist-container {
-    position: relative;
-  }
-
-  /* Adjust button positioning for wider screens if needed */
-  .action-buttons-container {
-    /* Example: Keep fixed but adjust position */
-    right: calc(50% - 188px + 20px); /* Center relative to app width (approx 376px) */
-    /* Or adjust based on your layout */
   }
 }
 
