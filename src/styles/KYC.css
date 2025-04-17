@@ -1,47 +1,36 @@
 .kyc-container {
-  height: 100vh; /* Full viewport height */
+  height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: linear-gradient(160deg, #1a1a1a 0%, #121212 100%); /* Subtle gradient background */
-  overflow-y: auto; /* Allow scrolling if content overflows */
-  padding: 20px; /* Add padding for smaller screens */
+  justify-content: flex-start;
+  background: linear-gradient(160deg, #1a1a1a 0%, #121212 100%);
+  overflow-y: auto; 
+  padding: 0; /* Remove padding to maximize space */
   box-sizing: border-box;
 }
 
 .kyc-content {
   width: 100%;
-  max-width: 380px; /* Slightly narrower */
-  margin: 0 auto;
-  padding: 0; /* Remove padding, title handles top */
+  max-width: 380px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: rgba(30, 30, 30, 0.7); /* Slightly transparent background */
-  border-radius: 24px; /* More rounded corners */
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05); /* Enhanced shadow */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  overflow: hidden; /* Hide overflow for rounded corners */
+  background-color: transparent; /* Remove background for better space */
+  overflow-y: auto;
+  flex: 1;
 }
 
-/* Specific style for KYC title if needed, or rely on .screen-title */
+/* Adjust title spacing */
 .kyc-title {
-  /* Example: Remove bottom border if not desired here */
-  /* border-bottom: none; */
-  /* Example: Add more bottom padding */
-   padding-bottom: 15px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
 }
 
+/* Hide image container */
 .kyc-image-container {
-  width: 120px; /* Increased size */
-  height: 120px;
-  /* Adjust margin if logo is kept */
-  /* margin-top: 25px; */
-  /* margin-bottom: 25px; */
-  filter: drop-shadow(0 5px 15px rgba(153, 255, 51, 0.2)); /* Add glow to image */
-  display: none; /* Hide logo for now */
+  display: none; /* Hide the image to save space */
 }
 
 .kyc-image {
@@ -50,68 +39,41 @@
   object-fit: contain;
 }
 
+/* Optimize form layout */
 .kyc-form {
   display: flex;
   flex-direction: column;
-  gap: 18px; /* Adjusted gap */
+  gap: 12px; /* Reduced gap */
   width: 100%;
-  padding: 20px 25px 30px; /* Add padding back to form area */
+  padding: 10px 15px 20px; /* Reduced padding */
   box-sizing: border-box;
 }
 
-/* New row layout */
+/* Adjust form row spacing */
 .form-row {
   display: flex;
-  gap: 15px;
+  gap: 10px; /* Reduced gap */
   width: 100%;
-  /* Align items to the start to help with label alignment */
   align-items: flex-start;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px; /* Reduced gap */
+  gap: 4px; /* Reduced gap */
   width: 100%;
-  position: relative; /* Needed for absolute positioning of feedback */
+  position: relative;
 }
 
-/* Specific widths for row items */
-.form-group-photo {
-  width: 60px; /* Adjusted width for square */
-  flex-shrink: 0;
-  align-items: center; /* Center the photo upload */
-  padding-top: 23px; /* Add padding to align visually with name input label */
-}
-.form-group-name {
-  flex: 1; /* Take remaining space */
-}
-.form-group-dob {
-  flex: 1;
-}
-.form-group-gender {
-  width: 110px; /* Fixed width for gender */
-  flex-shrink: 0;
-}
-
-
-.form-group label {
-  font-size: 0.85rem; /* Smaller label */
-  color: rgba(255, 255, 255, 0.6); /* Lighter label */
-  font-weight: 500;
-  /* margin-left: 5px; Remove slight indent */
-  text-align: left; /* Ensure labels align left */
-  padding-bottom: 2px; /* Add a little space below label */
-}
-
+/* Adjust input sizing */
 .form-group input,
 .form-group select {
   background-color: rgba(255, 255, 255, 0.05); /* More subtle background */
   border: 1px solid rgba(255, 255, 255, 0.1); /* More subtle border */
   border-radius: 10px; /* Slightly less rounded */
   color: white;
-  padding: 12px 14px; /* Adjusted padding */
-  font-size: 0.95rem;
+  padding: 10px; /* Reduced padding */
+  font-size: 0.9rem; /* Slightly smaller font */
   outline: none;
   transition: all 0.3s ease;
   width: 100%; /* Ensure full width */
@@ -161,11 +123,11 @@
 
 /* Feedback area below input */
 .input-feedback {
-  height: 16px; /* Reserve space for feedback */
+  height: 14px; /* Reduced height */
   display: flex;
   align-items: center;
   padding-left: 5px;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .username-checking {
@@ -183,26 +145,25 @@
 .error-message.general-error {
   background-color: rgba(255, 85, 85, 0.15);
   color: #ff6b6b;
-  padding: 10px 12px;
+  padding: 8px;
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   border: 1px solid rgba(255, 85, 85, 0.2);
   width: 100%;
   text-align: center;
-  margin-top: 5px; /* Add some space above */
+  margin-top: 2px; /* Reduced margin */
 }
 
 /* Compact Photo Upload */
 .photo-label {
-  margin: 0; /* Remove default label margin */
-  width: 60px;
-  height: 60px;
+  margin: 0;
+  width: 50px; /* Reduced width */
+  height: 50px; /* Reduced height */
 }
 .photo-upload-area {
-  width: 60px;
-  height: 60px;
-  /* border-radius: 50%; Remove circle */
-  border-radius: 8px; /* Make it a square with rounded corners */
+  width: 50px; /* Reduced width */
+  height: 50px; /* Reduced height */
+  border-radius: 6px; /* Slightly less rounded */
   background-color: rgba(255, 255, 255, 0.08);
   border: 2px dashed rgba(255, 255, 255, 0.2);
   display: flex;
@@ -230,7 +191,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* border-radius: 50%; Remove circle if image itself was rounded */
 }
 .photo-upload-overlay {
   position: absolute;
@@ -254,18 +214,45 @@
   display: none;
 }
 
+/* Add a new placeholder style for the empty state with + sign */
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.form-group-photo {
+  width: 50px; /* Reduced width */
+  flex-shrink: 0;
+  align-items: center; /* Center the photo upload */
+  padding-top: 20px; /* Reduced padding */
+}
+.form-group-name {
+  flex: 1; /* Take remaining space */
+}
+.form-group-dob {
+  flex-basis: 50%; /* Make them equal width */
+}
+.form-group-gender {
+  flex-basis: 50%; /* Make them equal width */
+}
 
 .submit-button {
   background: linear-gradient(90deg, #99ff33, #77dd00); /* Slightly adjusted gradient */
   color: #121212;
   border: none;
   border-radius: 12px; /* Match input radius */
-  padding: 14px; /* Adjusted padding */
+  padding: 12px; /* Reduced padding */
   font-size: 1rem; /* Adjusted font size */
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 10px;
+  margin-top: 5px; /* Reduced margin */
   width: 100%;
   box-shadow: 0 4px 15px rgba(153, 255, 51, 0.2);
 }
@@ -294,11 +281,11 @@
   background: none;
   border: none;
   color: #ff5555; /* Make text red */
-  font-size: 0.8rem;
-  margin-top: 15px;
+  font-size: 0.75rem; /* Smaller text */
+  margin-top: 10px; /* Reduced margin */
   cursor: pointer;
   transition: color 0.3s ease;
-  padding: 5px;
+  padding: 0; /* Remove padding */
 }
 .signout-button-alt:hover:not(:disabled) {
   color: #ff8888; /* Lighter red on hover */

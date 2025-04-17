@@ -3,6 +3,8 @@ import { findUsersByUsername, ParticipantDetails } from '../services/firebase';
 import '../styles/Search.css';
 import { User } from 'firebase/auth';
 import defaultAvatar from '../assets/default-avatar.js';
+// Import the searching illustration as a module
+import searchingImage from '../assets/searching.png';
 
 // SVG icons
 const searchIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -127,7 +129,8 @@ const Search = ({ currentUser, onUserSelected }: SearchProps) => {
         ) : !hasSearched ? (
           <div className="search-placeholder">
             <div className="search-illustration">
-              <img src="/src/assets/searching.png" alt="Searching illustration" />
+              {/* Use the imported image instead of direct path */}
+              <img src={searchingImage} alt="Searching illustration" />
             </div>
             <p className="placeholder-text">Search for people by their username</p>
           </div>

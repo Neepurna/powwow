@@ -4,6 +4,8 @@ import SignIn from '../components/SignIn';
 import '../styles/Welcome.css';
 // Import the logo image
 import logoImage from '../assets/logo.png';
+// Import the welcome image correctly
+import welcomeImage from '../assets/welcome.png';
 
 interface WelcomeProps {
   onLogin: (user: User) => void;
@@ -26,12 +28,11 @@ const Welcome = ({ onLogin }: WelcomeProps) => {
   return (
     <div className="welcome-container">
       <div className="welcome-content">
-        {/* Replace h1 with img */}
         <img src={logoImage} alt="PowWow Logo" className="app-logo" /> 
         
         <div className="welcome-image-container">
           <img 
-            src="/src/assets/welcome.png" 
+            src={welcomeImage} 
             alt="PowWow Welcome" 
             className="welcome-image" 
           />

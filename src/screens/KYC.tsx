@@ -3,10 +3,7 @@ import { User } from 'firebase/auth';
 import { updateUserProfile, isUsernameTaken, signOut, db } from '../services/firebase';
 import { doc, getDoc } from "firebase/firestore";
 import { uploadImage } from '../services/cloudinary';
-import defaultAvatar from '../assets/default-avatar.js';
 import '../styles/KYC.css';
-
-
 
 interface KYCProps {
   user: User;
@@ -28,18 +25,18 @@ const KYC = ({ user, onComplete }: KYCProps) => {
     username: '',
     dateOfBirth: '',
     gender: '',
-    photoURL: user.photoURL || defaultAvatar,
+    photoURL: user.photoURL || '', // Use empty string as default
   });
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewImage, setPreviewImage] = useState<string | null>(user.photoURL || defaultAvatar);
+  const [previewImage, setPreviewImage] = useState<string | null>(user.photoURL || null); // Allow null for default
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [usernameChecking, setUsernameChecking] = useState(false);
-  const [usernameError, setUsernameError] = useState<string | null>(null); // Specific state for username error
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const usernameCheckTimer = useRef<NodeJS.Timeout | null>(null); // Ref for debounce timer
+  const usernameCheckTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Clear timer on unmount
   useEffect(() => {
@@ -58,36 +55,31 @@ const KYC = ({ user, onComplete }: KYCProps) => {
       [name]: value
     }));
 
-    // Clear general error if user types in any field
     if (error) setError(null);
-    // Clear username error specifically if user types in username field
     if (name === 'username' && usernameError) setUsernameError(null);
 
     if (name === 'username') {
-      // Clear existing timer if user is still typing
       if (usernameCheckTimer.current) {
         clearTimeout(usernameCheckTimer.current);
       }
 
       const trimmedValue = value.trim();
 
-      // Immediate client-side validation for username
       if (value !== trimmedValue) {
         setUsernameError('Username cannot contain spaces.');
         setUsernameChecking(false);
         return;
       }
-       if (trimmedValue && !/^[a-zA-Z0-9_]+$/.test(trimmedValue)) {
+      if (trimmedValue && !/^[a-zA-Z0-9_]+$/.test(trimmedValue)) {
         setUsernameError('Use letters, numbers, underscores only.');
         setUsernameChecking(false);
         return;
       }
       if (!trimmedValue) {
-         setUsernameChecking(false);
-         return;
+        setUsernameChecking(false);
+        return;
       }
 
-      // Debounce the check
       setUsernameChecking(true);
       usernameCheckTimer.current = setTimeout(async () => {
         try {
@@ -95,8 +87,7 @@ const KYC = ({ user, onComplete }: KYCProps) => {
           if (taken) {
             setUsernameError('This username is already taken.');
           } else {
-            // Username is valid and available
-            setUsernameError(null); // Explicitly clear error on success
+            setUsernameError(null);
           }
         } catch (err: any) {
           console.error('Error checking username:', err);
@@ -111,47 +102,41 @@ const KYC = ({ user, onComplete }: KYCProps) => {
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
-      // If no file is selected (e.g., user cancels), reset the input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
       return;
     }
 
-    // Clear previous general errors when a new image is selected
     setError(null);
 
-    // Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       setError('Image size must be less than 2MB');
-      setSelectedFile(null); // Clear selection if invalid
-      setPreviewImage(profile.photoURL || defaultAvatar); // Revert preview
-      if (fileInputRef.current) { // Clear the file input value
+      setSelectedFile(null);
+      setPreviewImage(profile.photoURL || null); // Use null instead of defaultAvatar
+      if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
       return;
     }
 
     setSelectedFile(file);
-    console.log("Image selected:", file.name); // Log selection
 
-    // Create a local preview
     const reader = new FileReader();
     reader.onload = () => {
       setPreviewImage(reader.result as string);
-      // Reset input value *after* successful read and preview set
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     };
     reader.onerror = () => {
-        console.error("Error reading file for preview");
-        setError("Could not preview the selected image.");
-        setSelectedFile(null);
-        setPreviewImage(profile.photoURL || defaultAvatar);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+      console.error("Error reading file for preview");
+      setError("Could not preview the selected image.");
+      setSelectedFile(null);
+      setPreviewImage(profile.photoURL || null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -159,29 +144,24 @@ const KYC = ({ user, onComplete }: KYCProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null); // Clear general error at the start
-    // Keep usernameError state as is, let validation logic handle it
+    setError(null);
 
     const finalUsername = profile.username.trim();
-    let submissionErrorOccurredBeforeUpload = false; // Flag to track if pre-upload error happened
+    let submissionErrorOccurredBeforeUpload = false;
 
     try {
-      console.log("handleSubmit started. selectedFile:", selectedFile?.name); // Log start
-
-      // === Pre-submission Validation ===
       if (!profile.displayName || !finalUsername || !profile.dateOfBirth || !profile.gender) {
         throw new Error('Please fill in all required fields.');
       }
       if (/\s/.test(profile.username)) {
-         setUsernameError('Username cannot contain spaces.');
-         throw new Error('Username cannot contain spaces.');
+        setUsernameError('Username cannot contain spaces.');
+        throw new Error('Username cannot contain spaces.');
       }
       if (!/^[a-zA-Z0-9_]+$/.test(finalUsername)) {
-         setUsernameError('Use letters, numbers, underscores only.');
+        setUsernameError('Use letters, numbers, underscores only.');
         throw new Error('Username format is invalid.');
       }
 
-      // Age validation
       const birthDate = new Date(profile.dateOfBirth);
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
@@ -193,83 +173,57 @@ const KYC = ({ user, onComplete }: KYCProps) => {
         throw new Error('You must be at least 13 years old.');
       }
 
-      // === Final Username Uniqueness Check ===
-      console.log("Performing final username check before submission...");
       try {
         const userDocRef = doc(db, "users", user.uid);
-        const userDocSnap = await getDoc(userDocRef); // Use different name
+        const userDocSnap = await getDoc(userDocRef);
         const existingUsername = userDocSnap.exists() ? userDocSnap.data().username : null;
 
         if (existingUsername !== finalUsername) {
-           const usernameTaken = await isUsernameTaken(finalUsername);
-           if (usernameTaken) {
-             setUsernameError('This username is already taken.'); // Set specific error
-             throw new Error('This username is already taken.');
-           }
-           console.log("Final username check passed.");
-        } else {
-           console.log("Username hasn't changed, skipping final check.");
+          const usernameTaken = await isUsernameTaken(finalUsername);
+          if (usernameTaken) {
+            setUsernameError('This username is already taken.');
+            throw new Error('This username is already taken.');
+          }
         }
       } catch (checkError: any) {
-         console.error("Final username check failed:", checkError);
-         // Rethrow the specific error from isUsernameTaken or a generic one
-         const specificErrorMsg = checkError.message || 'Failed to verify username.';
-         if (specificErrorMsg.includes('username') || specificErrorMsg.includes('taken')) {
-            setUsernameError(specificErrorMsg);
-         } else {
-            setError(specificErrorMsg); // Set general error for other check failures
-         }
-         throw new Error(specificErrorMsg); // Re-throw to stop submission
+        const specificErrorMsg = checkError.message || 'Failed to verify username.';
+        if (specificErrorMsg.includes('username') || specificErrorMsg.includes('taken')) {
+          setUsernameError(specificErrorMsg);
+        } else {
+          setError(specificErrorMsg);
+        }
+        throw new Error(specificErrorMsg);
       }
 
-      // === Image Upload (if applicable) ===
-      let photoURL = profile.photoURL; // Start with existing or default URL
+      let photoURL = profile.photoURL;
       if (selectedFile) {
-        console.log("Attempting to upload selected image:", selectedFile.name); // Log before upload
         try {
           photoURL = await uploadImage(selectedFile);
-          console.log('Image uploaded successfully:', photoURL);
-          // Optionally clear selectedFile after successful upload if needed
-          // setSelectedFile(null);
         } catch (uploadError: any) {
-          console.error('Image upload failed:', uploadError);
-          // Set a specific error message indicating upload failure but allowing profile save
           setError(`Failed to upload profile image: ${uploadError.message || 'Unknown error'}. Profile will be saved without the new image.`);
-          // Do NOT re-throw; allow profile update to proceed with the old photoURL
         }
-      } else {
-         console.log("No new image selected for upload.");
       }
 
-      // === Update Profile ===
-      console.log("Updating user profile in Firestore with photoURL:", photoURL);
       await updateUserProfile(user.uid, {
         displayName: profile.displayName.trim(),
         username: finalUsername,
         dateOfBirth: profile.dateOfBirth,
         gender: profile.gender,
-        photoURL, // Use the URL (either newly uploaded, existing, or default)
+        photoURL,
       });
-      console.log("Profile update successful.");
 
-      onComplete(); // Navigate away only on full success
+      onComplete();
 
     } catch (err: any) {
-      submissionErrorOccurredBeforeUpload = !error?.startsWith('Failed to upload profile image'); // Mark if error happened before/during upload attempt
-      console.error('KYC submission error:', err);
-      // Set general error only if a specific username error isn't already set for the *same* issue
-      // Or if the error is not the image upload error we handled above
+      submissionErrorOccurredBeforeUpload = !error?.startsWith('Failed to upload profile image');
       if ((!usernameError || !err.message?.includes('username')) && !error?.startsWith('Failed to upload profile image')) {
-         setError(err.message || 'An unexpected error occurred during submission.');
+        setError(err.message || 'An unexpected error occurred during submission.');
       }
-      // If a validation/check error occurred and an image was selected, add a note.
       if (selectedFile && submissionErrorOccurredBeforeUpload) {
-          setError(prev => `${prev || err.message || 'An error occurred.'} (Your selected image is still ready for the next attempt)`);
+        setError(prev => `${prev || err.message || 'An error occurred.'} (Your selected image is still ready for the next attempt)`);
       }
-
     } finally {
       setIsLoading(false);
-      console.log("handleSubmit finished. Error occurred before/during upload:", submissionErrorOccurredBeforeUpload); // Log end
     }
   };
 
@@ -277,10 +231,8 @@ const KYC = ({ user, onComplete }: KYCProps) => {
     try {
       setIsLoading(true);
       await signOut();
-      // The app will handle redirect after auth state changes
       window.location.reload();
     } catch (error) {
-      console.error("Error signing out:", error);
       setError("Failed to sign out. Please try again.");
       setIsLoading(false);
     }
@@ -289,12 +241,7 @@ const KYC = ({ user, onComplete }: KYCProps) => {
   return (
     <div className="kyc-container">
       <div className="kyc-content">
-        {/* Add Screen Title */}
         <h2 className="screen-title kyc-title">Complete Profile</h2>
-
-        <div className="kyc-image-container">
-          <img src="/src/assets/kyc.png" alt="Complete Your Profile" className="kyc-image" />
-        </div>
 
         <form className="kyc-form" onSubmit={handleSubmit}>
           <div className="form-row">
@@ -304,7 +251,7 @@ const KYC = ({ user, onComplete }: KYCProps) => {
                   {previewImage ? (
                     <img src={previewImage} alt="Preview" className="photo-preview-small" />
                   ) : (
-                    <img src={defaultAvatar} alt="Default Avatar" className="photo-preview-small" />
+                    <div className="photo-placeholder">+</div>
                   )}
                   <div className="photo-upload-overlay">Edit</div>
                 </div>
@@ -346,9 +293,8 @@ const KYC = ({ user, onComplete }: KYCProps) => {
               required
               disabled={isLoading}
               maxLength={30}
-              className={usernameError ? 'input-error' : ''} // Add error class
+              className={usernameError ? 'input-error' : ''}
             />
-            {/* Username specific feedback area */}
             <div className="input-feedback">
               {usernameChecking && <span className="username-checking">Checking...</span>}
               {usernameError && <span className="input-error-message">{usernameError}</span>}
@@ -393,7 +339,7 @@ const KYC = ({ user, onComplete }: KYCProps) => {
           <button
             type="submit"
             className="submit-button"
-            disabled={isLoading || usernameChecking || !!usernameError || !!error} // Disable on general error too
+            disabled={isLoading || usernameChecking || !!usernameError || !!error}
           >
             {isLoading ? 'Saving...' : 'lets Powwow!'}
           </button>
