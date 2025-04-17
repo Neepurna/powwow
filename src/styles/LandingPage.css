@@ -185,10 +185,10 @@
   position: relative;
 }
 
-/* Mobile Frame - Remove the notch */
+/* Mobile Frame - Larger dimensions for better fit */
 .mobile-frame {
-  width: 360px; /* Adjusted size */
-  height: 740px; /* Adjusted size */
+  width: min(380px, 100vw);
+  height: min(100px, 120vh); /* Significantly increased height for better app display */
   background-color: #2a2a2a;
   border-radius: 40px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 
@@ -198,23 +198,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: rotate(0); /* No rotation */
+  transform: scale(1); /* Remove scaling to show at actual size */
+  transform-origin: center center;
+  transition: transform 0.3s ease; /* Smooth transition if scale changes */
 }
-
-/* Remove the notch code */
-/* .mobile-frame::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 150px;
-  height: 20px;
-  background-color: #222;
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
-  z-index: 100;
-} */
 
 /* The app content wrapper ensures proper fitting */
 .app-content-wrapper {
@@ -226,19 +213,21 @@
   box-sizing: border-box;
 }
 
-/* Media query for smaller screens */
+/* Adjusted media queries for better responsiveness */
 @media (max-height: 800px) {
   .mobile-frame {
-    width: 340px; /* Smaller on lower height screens */
-    height: 700px;
+    width: min(360px, 90vw);
+    height: min(780px, 88vh); /* Increased height percentage */
+    transform: scale(0.98); /* Less scaling down */
   }
 }
 
-/* Media query for really small screens */
 @media (max-width: 480px), (max-height: 700px) {
   .mobile-frame {
-    width: 320px;
-    height: 650px;
+    width: min(340px, 90vw); /* Increased from 85vw */
+    height: min(740px, 85vh); /* Increased height */
+    transform: scale(0.95); /* Less scaling down */
+    border-radius: 30px; /* Slightly reduce border radius on small screens */
   }
   
   .welcome-panel {

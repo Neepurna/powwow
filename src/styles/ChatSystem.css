@@ -124,6 +124,7 @@
 .message-wrapper.received {
   align-self: flex-start; /* Align received messages to the left */
   align-items: flex-end; /* Align avatar bottom with bubble bottom */
+  margin-bottom: 12px; /* Increased spacing between messages */
 }
 
 /* NEW: Sender Avatar Styles */
@@ -181,6 +182,15 @@
   color: rgba(255, 255, 255, 0.6); /* Adjust color as needed */
   margin-bottom: 3px; /* Space between name and message text */
   padding-left: 2px; /* Slight indent */
+}
+/* Ensure sender name is always visible for received messages */
+.message-wrapper.received .sender-name {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 3px;
+  padding-left: 2px;
 }
 /* Hide sender name in image messages if desired */
 .message-bubble.image-message .sender-name {

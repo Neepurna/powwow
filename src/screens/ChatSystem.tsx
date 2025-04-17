@@ -54,47 +54,43 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
         setMessages(fetchedMessages);
         setIsLoadingMessages(false);
 
-        // --- Fetch missing sender details for group chats ---
-        if (isGroupChat && fetchedMessages.length > 0) {
-          const uniqueSenderIds = Array.from(
-            new Set(
-              fetchedMessages
-                .map(msg => msg.senderId)
-                // Filter out current user and already cached senders
-                .filter(id => id !== currentUser.uid && !senderDetailsCache[id]) 
-            )
-          );
+        // --- Fetch missing sender details for ALL received messages, not just group chats ---
+        const uniqueSenderIds = Array.from(
+          new Set(
+            fetchedMessages
+              .map(msg => msg.senderId)
+              // Filter out current user and already cached senders
+              .filter(id => id !== currentUser.uid && !senderDetailsCache[id]) 
+          )
+        );
 
-          if (uniqueSenderIds.length > 0) {
-            console.log("Fetching details for senders:", uniqueSenderIds);
-            const detailsToUpdate: { [key: string]: SenderDetails } = {};
-            await Promise.all(uniqueSenderIds.map(async (senderId) => {
-              try {
-                const userDocRef = doc(db, "users", senderId);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists()) {
-                  const userData = userDocSnap.data();
-                  detailsToUpdate[senderId] = {
-                    displayName: userData.displayName || 'User',
-                    photoURL: userData.photoURL || defaultAvatar
-                  };
-                } else {
-                  // Cache a default if user not found
-                  detailsToUpdate[senderId] = { displayName: 'User', photoURL: defaultAvatar };
-                }
-              } catch (error) {
-                console.error(`Failed to fetch details for sender ${senderId}:`, error);
-                // Cache a default on error
+        if (uniqueSenderIds.length > 0) {
+          console.log("Fetching details for senders:", uniqueSenderIds);
+          const detailsToUpdate: { [key: string]: SenderDetails } = {};
+          await Promise.all(uniqueSenderIds.map(async (senderId) => {
+            try {
+              const userDocRef = doc(db, "users", senderId);
+              const userDocSnap = await getDoc(userDocRef);
+              if (userDocSnap.exists()) {
+                const userData = userDocSnap.data();
+                detailsToUpdate[senderId] = {
+                  displayName: userData.displayName || 'User',
+                  photoURL: userData.photoURL || defaultAvatar
+                };
+              } else {
+                // Cache a default if user not found
                 detailsToUpdate[senderId] = { displayName: 'User', photoURL: defaultAvatar };
               }
-            }));
+            } catch (error) {
+              console.error(`Failed to fetch details for sender ${senderId}:`, error);
+              // Cache a default on error
+              detailsToUpdate[senderId] = { displayName: 'User', photoURL: defaultAvatar };
+            }
+          }));
 
-            // Update cache state
-            setSenderDetailsCache(prevCache => ({ ...prevCache, ...detailsToUpdate }));
-          }
+          // Update cache state
+          setSenderDetailsCache(prevCache => ({ ...prevCache, ...detailsToUpdate }));
         }
-        // --- End sender details fetch ---
-
       },
       (error) => {
         console.error("Failed to fetch messages:", error);
@@ -107,19 +103,15 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
       console.log(`Cleaning up message listener for chat: ${chatId}`);
       unsubscribe();
     };
-  // Add isGroupChat and currentUser.uid to dependencies
-  }, [chatId, isGroupChat, currentUser.uid]); 
+  }, [chatId, currentUser.uid]); 
 
   // --- Auto-scroll to bottom ---
   useEffect(() => {
-    // ... existing implementation ...
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]); 
 
   // --- Send Message ---
   const handleSendMessage = async (text?: string) => { 
-    // ... existing implementation ...
-    // No changes needed here, sender details are passed but Firestore profile is used for display
     const textToSend = (text || messageText).trim(); 
     if (textToSend === '' || !currentUser) return;
 
@@ -148,14 +140,11 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
 
   // --- Attach Image ---
   const handleAttachImage = () => {
-    // ... existing implementation ...
     fileInputRef.current?.click();
   };
 
   // --- Handle File Selection and Upload ---
   const handleFileSelected = async (event: ChangeEvent<HTMLInputElement>) => {
-    // ... existing implementation ...
-    // No changes needed here, sender details are passed but Firestore profile is used for display
      const file = event.target.files?.[0];
     if (!file || !currentUser) {
       return;
@@ -249,8 +238,9 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
               const isSent = msg.senderId === currentUser.uid;
               const isImage = msg.text.startsWith('IMAGE::');
               const content = isImage ? msg.text.substring(7) : msg.text; 
-              const showAvatar = isGroupChat && !isSent; 
-              // Get sender details from cache for received group messages
+              // Show avatar for ALL received messages, not just in group chats
+              const showAvatar = !isSent; 
+              // Get sender details from cache for all received messages
               const senderDetails = showAvatar ? senderDetailsCache[msg.senderId] : null; 
 
               return (
@@ -261,9 +251,7 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
                   {showAvatar && (
                     <div className="sender-avatar">
                       <img 
-                        // Use cached photoURL, fallback to defaultAvatar
                         src={senderDetails?.photoURL || defaultAvatar} 
-                        // Use cached displayName for alt, fallback to 'User'
                         alt={senderDetails?.displayName || 'User'} 
                       />
                     </div>
@@ -272,7 +260,6 @@ const ChatSystem = ({ chatId, currentUser, otherParticipant, onBack }: ChatSyste
                     className={`message-bubble ${isImage ? 'image-message' : ''}`}
                   >
                     {showAvatar && (
-                       // Use cached displayName, fallback to 'User'
                        <span className="sender-name">{senderDetails?.displayName || 'User'}</span>
                     )} 
                     {isImage ? (
