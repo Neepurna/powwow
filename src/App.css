@@ -10,7 +10,7 @@
   width: 100%;
   height: 100%; /* Use 100% to fill the root/body */
   position: relative; /* Keep relative for potential children positioning */
-  overflow: hidden; /* Prevent .app itself from scrolling */
+  /* overflow: hidden; */ /* REMOVE this line */
   display: flex; /* Make .app the main flex container */
   flex-direction: column; /* Stack header, content, footer vertically */
   background-color: #121212; /* Ensure background is set */
@@ -97,7 +97,8 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent body scroll */
+  /* overflow: hidden; */ /* REMOVE this line */
+  overflow-y: auto; /* ADD this line to allow vertical scrolling */
 }
 
 /* App header styles */

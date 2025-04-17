@@ -3,12 +3,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 100%; /* Use percentage height */
   width: 100%;
   background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
   padding: 20px;
   box-sizing: border-box;
-  overflow-x: hidden;
+  overflow-y: auto; /* Allow vertical scrolling if needed */
 }
 
 /* Desktop Layout */
@@ -39,15 +39,19 @@
 /* Mobile Layout */
 @media (max-width: 1023px) {
   .landing-container {
-    flex-direction: column;
+    flex-direction: column-reverse; /* REVERSE order: app panel first */
+    padding-top: 40px; /* Add padding at the top */
+    padding-bottom: 40px; /* Add padding at the bottom */
   }
   
   .welcome-panel {
-    margin-bottom: 30px; /* Space between panels on mobile */
+    margin-top: 40px; /* ADD space above welcome panel */
     width: 100%;
     max-width: 500px;
     opacity: 1;
     transform: translateX(0);
+    align-items: center; /* Center content on mobile */
+    text-align: center; /* Center text on mobile */
   }
   
   .app-panel {
@@ -56,6 +60,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-bottom: 30px; /* ADD space below app panel */
   }
 }
 
@@ -188,7 +193,7 @@
 /* Mobile Frame - Larger dimensions for better fit */
 .mobile-frame {
   width: min(380px, 100vw);
-  height: min(100px, 120vh); /* Significantly increased height for better app display */
+  height: min(800px, 90vh); /* Set a more reasonable base height */
   background-color: #2a2a2a;
   border-radius: 40px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 
