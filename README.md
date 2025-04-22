@@ -1,3 +1,7 @@
+## 💡 About
+
+PowWow! was created in just 14 hours of vibe coding during a hackathon. The name draws inspiration from the traditional Native American gathering, representing our goal of bringing people together in meaningful conversation.
+
 # PowWow! - Link Up. Speak Out. Stay Lit!
 
 PowWow! is a modern messaging platform built for seamless communication. Created during an intense 14-hour hackathon with nothing but good vibes and passionate coding!
@@ -39,9 +43,7 @@ npm run build
 npm run preview
 ```
 
-## 💡 About
 
-PowWow! was created in just 14 hours of vibe coding during a hackathon. The name draws inspiration from the traditional Native American gathering, representing our goal of bringing people together in meaningful conversation.
 
 ## 📝 License
 
